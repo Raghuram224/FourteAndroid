@@ -18,6 +18,6 @@ data class DataItem(
 enum class ResponseState{
     Empty,
     Loading,
-    Failed,
+    QnGenerated,
     Success
 }

@@ -48,11 +48,32 @@ fun Game(
 ) {
     val operatorsList = gameViewModel.operatorsList
     val responseState by gameViewModel.responseState.collectAsState()
+    val userAnswerList = gameViewModel.userAnswerList
+    val actualQn =gameViewModel.actualQn
+    val optionNumbersList = gameViewModel.qnNumberList
+    val userAnswer by gameViewModel.userAnswer.collectAsState()
 
     LaunchedEffect(Unit) {
-        Log.i("answer state", responseState.toString())
+
         gameViewModel.generateQuestionElements()
 //        gameViewModel.generateAnswer()
+
+    }
+    LaunchedEffect(responseState) {
+        Log.i("answer state", responseState.toString())
+        Log.i("answer  list", userAnswerList.toList().toString())
+
+        if (responseState==ResponseState.QnGenerated){
+            gameViewModel.updateOptionNumbersList(list = optionNumbersList)
+//            gameViewModel.generateAnswer(userAnswerList =actualQn )
+        }
+
+    }
+    LaunchedEffect(userAnswerList.size) {
+        if (userAnswerList.isNotEmpty()){
+            gameViewModel.generateAnswer(userAnswerList = userAnswerList)
+        }
+
     }
     val optionNumbers = gameViewModel.optionNumbers
     val usersAnswerList = gameViewModel.userAnswerList
@@ -87,7 +108,7 @@ fun Game(
                         Text(
                             modifier = Modifier
                                 .fillMaxWidth(),
-                            text = "6",
+                            text = if (userAnswer!=null) userAnswer.toString() else "empty",
                             style = TextStyle(
                                 fontSize = 40.sp,
                                 fontWeight = FontWeight.SemiBold,

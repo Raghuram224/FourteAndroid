@@ -8,11 +8,9 @@ import com.example.fourteandroid.view.data.DataItem
 import com.example.fourteandroid.view.data.DataTypes
 import com.example.fourteandroid.view.data.ResponseState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.internal.synchronized
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.random.Random
@@ -21,6 +19,7 @@ import kotlin.random.Random
 class GameViewModel @Inject constructor() : ViewModel() {
     private val _responseState = MutableStateFlow<ResponseState>(ResponseState.Empty)
     val responseState: StateFlow<ResponseState> = _responseState.asStateFlow()
+    private val _userAnswer = MutableStateFlow<Int?>(null)
     private val _operatorsList = mutableStateListOf(
         DataItem(
             dataType = DataTypes.Add,
@@ -57,50 +56,58 @@ class GameViewModel @Inject constructor() : ViewModel() {
 
     private val operatorList = operators.entries.toList()
     private val qnOperatorsList = mutableListOf<String>()
-    private val qnNumberList = mutableListOf<DataItem>()
-    private val actualQn = mutableListOf<DataItem>()
+    private val _qnNumberList = mutableListOf<DataItem>()
+    private val _actualQn = mutableListOf<DataItem>()
 
     private val _optionNumbers = mutableStateListOf<DataItem>()
     val optionNumbers: List<DataItem> = _optionNumbers
 
     private val _userAnswerList = mutableStateListOf<DataItem>()
     val userAnswerList: List<DataItem> = _userAnswerList
-
+    val actualQn:List<DataItem> = _actualQn
+    val userAnswer = _userAnswer.asStateFlow()
+    val  qnNumberList:List<DataItem> = _qnNumberList
     private fun getRandomOperator() = operatorList.random()
     private fun getRandomNumber() = Random.nextInt(1, numbersRange)
 
-    @OptIn(InternalCoroutinesApi::class)
     fun generateQuestionElements() {
-        updateResponseState(ResponseState.Loading)
-        synchronized(this) {
+        viewModelScope.launch {
+            updateResponseState(ResponseState.Loading)
             repeat(operationsCount) {
                 val operator = getRandomOperator()
                 val number = getRandomNumber()
 
                 val numberDataItem = DataItem(dataType = DataTypes.Number, data = number.toString())
-                qnNumberList.add(numberDataItem)
+                _qnNumberList.add(numberDataItem)
                 qnOperatorsList.add(operator.key)
 
-                actualQn.add(numberDataItem)
-                actualQn.add(DataItem(dataType = operator.value, data = operator.key))
+                _actualQn.add(numberDataItem)
+                Log.i("counter",it.toString())
+                if (it<operationsCount-1){
+                    _actualQn.add(DataItem(dataType = operator.value, data = operator.key))
+                }
+
             }
-            generateAnswer()
+//            generateAnswer()
+
+            Log.i("list data", _actualQn.toString())
+            updateResponseState(responseState = ResponseState.QnGenerated)
         }
-        Log.i("list data", actualQn.toString())
+
     }
 
-    private fun generateAnswer(): Int {
-        if (actualQn.isEmpty()) return 0
+    fun generateAnswer(userAnswerList:List<DataItem>): Int {
+        if (userAnswerList.isEmpty()) return 0
 
         var result = 0
         var currentOperation: DataTypes? = null
 
-        for (dataItem in actualQn) {
+        for (dataItem in userAnswerList) {
             when (dataItem.dataType) {
                 DataTypes.Number -> {
                     val number = dataItem.data.toInt()
                     result = if (currentOperation == null) {
-                        number
+                        result+number
                     } else {
                         when (currentOperation) {
                             DataTypes.Add -> result + number
@@ -116,10 +123,16 @@ class GameViewModel @Inject constructor() : ViewModel() {
             }
         }
 
-        updateOptionNumbersList(qnNumberList)
+//        updateOptionNumbersList(_qnNumberList)
         Log.i("answer", result.toString())
-        Log.i("answer", qnOperatorsList.toString())
-        Log.i("answer", qnNumberList.toString())
+        Log.i("answer qn operator", qnOperatorsList.toString())
+        Log.i("answer qn numbers", _qnNumberList.toString())
+        if (userAnswerList.isEmpty()){
+            _userAnswer.value = null
+        }else{
+            _userAnswer.value = result
+        }
+
 
         return result
     }
@@ -128,7 +141,7 @@ class GameViewModel @Inject constructor() : ViewModel() {
         _responseState.value = responseState
     }
 
-    private fun updateOptionNumbersList(list: List<DataItem>) {
+    fun updateOptionNumbersList(list: List<DataItem>) {
         _optionNumbers.clear()
         _optionNumbers.addAll(list)
         updateResponseState(ResponseState.Success)
@@ -163,6 +176,9 @@ class GameViewModel @Inject constructor() : ViewModel() {
                         updateOperatorList(idx = index, isSelected = false)
                     }
                 }
+            }
+            if (userAnswerList.isEmpty()){
+                _userAnswer.value = null
             }
         }
 
