@@ -10,6 +10,7 @@ import com.example.fourteandroid.view.data.ResponseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.internal.synchronized
 import kotlinx.coroutines.launch
@@ -18,7 +19,32 @@ import kotlin.random.Random
 
 @HiltViewModel
 class GameViewModel @Inject constructor() : ViewModel() {
-    private val _responseState = MutableStateFlow(ResponseState.Empty)
+    private val _responseState = MutableStateFlow<ResponseState>(ResponseState.Empty)
+    val responseState: StateFlow<ResponseState> = _responseState.asStateFlow()
+    private val _operatorsList = mutableStateListOf(
+        DataItem(
+            dataType = DataTypes.Add,
+            data = "+",
+
+            ),
+        DataItem(
+            dataType = DataTypes.Subtract,
+            data = "-",
+
+            ),
+        DataItem(
+            dataType = DataTypes.Multiply,
+            data = "*",
+
+            ),
+        DataItem(
+            dataType = DataTypes.Division,
+            data = "/",
+
+            )
+    )
+    val operatorsList: List<DataItem> = _operatorsList
+
 
     private val operators = mapOf(
         "+" to DataTypes.Add,
@@ -30,60 +56,37 @@ class GameViewModel @Inject constructor() : ViewModel() {
     private val numbersRange = 50
 
     private val operatorList = operators.entries.toList()
-
     private val qnOperatorsList = mutableListOf<String>()
     private val qnNumberList = mutableListOf<DataItem>()
-
     private val actualQn = mutableListOf<DataItem>()
+
     private val _optionNumbers = mutableStateListOf<DataItem>()
+    val optionNumbers: List<DataItem> = _optionNumbers
 
-    val responseState = _responseState.asStateFlow()
-    val optionNumbers:List<DataItem> = _optionNumbers
+    private val _userAnswerList = mutableStateListOf<DataItem>()
+    val userAnswerList: List<DataItem> = _userAnswerList
 
-    private fun getRandomOperator(): Map.Entry<String, DataTypes> {
-        return operatorList[Random.nextInt(operatorList.size)]
-    }
-
-    private fun getRandomNumber(): Int {
-        return Random.nextInt(1, numbersRange)
-    }
+    private fun getRandomOperator() = operatorList.random()
+    private fun getRandomNumber() = Random.nextInt(1, numbersRange)
 
     @OptIn(InternalCoroutinesApi::class)
     fun generateQuestionElements() {
-        updateResponseState(responseState = ResponseState.Loading)
-        synchronized(Unit) {
-
-            for (i in 0 until operationsCount) {
+        updateResponseState(ResponseState.Loading)
+        synchronized(this) {
+            repeat(operationsCount) {
                 val operator = getRandomOperator()
                 val number = getRandomNumber()
 
-                qnNumberList.add(
-                    DataItem(
-                        dataType = DataTypes.Number,
-                        data = number.toString()
-                    )
-                )
+                val numberDataItem = DataItem(dataType = DataTypes.Number, data = number.toString())
+                qnNumberList.add(numberDataItem)
                 qnOperatorsList.add(operator.key)
 
-                actualQn.add(
-                    DataItem(
-                        dataType = DataTypes.Number,
-                        data = number.toString()
-                    )
-                )
-                actualQn.add(
-                    DataItem(
-                        dataType = operator.value,
-                        data = operator.key
-                    )
-                )
-
+                actualQn.add(numberDataItem)
+                actualQn.add(DataItem(dataType = operator.value, data = operator.key))
             }
             generateAnswer()
         }
         Log.i("list data", actualQn.toString())
-
-
     }
 
     private fun generateAnswer(): Int {
@@ -92,7 +95,7 @@ class GameViewModel @Inject constructor() : ViewModel() {
         var result = 0
         var currentOperation: DataTypes? = null
 
-        actualQn.forEach { dataItem ->
+        for (dataItem in actualQn) {
             when (dataItem.dataType) {
                 DataTypes.Number -> {
                     val number = dataItem.data.toInt()
@@ -104,21 +107,16 @@ class GameViewModel @Inject constructor() : ViewModel() {
                             DataTypes.Subtract -> result - number
                             DataTypes.Multiply -> result * number
                             DataTypes.Division -> result / number
-                            DataTypes.Number -> 0
-                            null -> 0
+                            else -> result
                         }
                     }
-
                 }
 
-                else -> {
-                    currentOperation = dataItem.dataType
-                }
+                else -> currentOperation = dataItem.dataType
             }
-
-            updateOptionNumbersList(list = qnNumberList)
-
         }
+
+        updateOptionNumbersList(qnNumberList)
         Log.i("answer", result.toString())
         Log.i("answer", qnOperatorsList.toString())
         Log.i("answer", qnNumberList.toString())
@@ -133,11 +131,49 @@ class GameViewModel @Inject constructor() : ViewModel() {
     private fun updateOptionNumbersList(list: List<DataItem>) {
         _optionNumbers.clear()
         _optionNumbers.addAll(list)
-        updateResponseState(responseState = ResponseState.Success)
-//        qnNumberList.clear()
-//        qnOperatorsList.clear()
+        updateResponseState(ResponseState.Success)
     }
 
+    fun updateOptionNumbersValues(idx: Int, isSelected: Boolean) {
+        _optionNumbers[idx] = _optionNumbers[idx].copy(isSelected = isSelected)
+        if (_optionNumbers[idx].isSelected) {
+            val dataItem = _optionNumbers[idx].copy(isSelected = false)
+            updateUserAnswerList(dataItem)
+        }
+    }
 
+    private fun updateUserAnswerList(dataItem: DataItem) {
+        _userAnswerList.add(dataItem)
+    }
+
+    fun removeUserAnswerList(idx: Int) {
+        viewModelScope.launch {
+            val dataItem = userAnswerList[idx]
+            _userAnswerList.remove(dataItem)
+
+            if (dataItem.dataType == DataTypes.Number) {
+                _optionNumbers.forEachIndexed { index, numberItem ->
+                    if (numberItem.data == dataItem.data) {
+                        updateOptionNumbersValues(idx = index, isSelected = false)
+                    }
+                }
+            } else {
+                _operatorsList.forEachIndexed { index, operatorItem ->
+                    if (operatorItem.data == dataItem.data) {
+                        updateOperatorList(idx = index, isSelected = false)
+                    }
+                }
+            }
+        }
+
+    }
+
+    fun updateOperatorList(idx: Int, isSelected: Boolean) {
+        _operatorsList[idx] = _operatorsList[idx].copy(isSelected = isSelected)
+        if (_operatorsList[idx].isSelected) {
+            val dataItem = _operatorsList[idx].copy(isSelected = false)
+            updateUserAnswerList(dataItem)
+        }
+    }
 }
 

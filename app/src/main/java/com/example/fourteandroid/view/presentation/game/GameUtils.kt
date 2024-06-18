@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -32,15 +34,17 @@ fun DataItemCard(
     dataItem: DataItem,
     color: Color = MaterialTheme.colorScheme.secondary,
     selectAction:()->Unit,
+    shape: Shape = RoundedCornerShape(10)
 ) {
     Card(
         modifier = modifier
-            .padding(MaterialTheme.dimens.gameDimensions.padding08)
+           /* .padding(MaterialTheme.dimens.gameDimensions.padding08)*/
             .clickable { selectAction() },
         colors = CardDefaults.cardColors(
             containerColor = if (dataItem.isSelected) MaterialTheme.colorScheme.tertiary
-            else color
-        )
+            else if (dataItem.dataType !=DataTypes.Number)  MaterialTheme.colorScheme.primary else color
+        ),
+        shape = shape
     ) {
         Column(
             modifier = Modifier

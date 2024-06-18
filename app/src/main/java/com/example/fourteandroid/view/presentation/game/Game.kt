@@ -7,11 +7,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -42,36 +46,16 @@ fun Game(
     modifier: Modifier = Modifier,
     gameViewModel: GameViewModel,
 ) {
-    val operatorsList = listOf(
-        DataItem(
-            dataType = DataTypes.Add,
-            data = "+",
-
-            ),
-        DataItem(
-            dataType = DataTypes.Subtract,
-            data = "-",
-
-            ),
-        DataItem(
-            dataType = DataTypes.Multiply,
-            data = "*",
-
-            ),
-        DataItem(
-            dataType = DataTypes.Division,
-            data = "/",
-
-            )
-    )
+    val operatorsList = gameViewModel.operatorsList
     val responseState by gameViewModel.responseState.collectAsState()
 
     LaunchedEffect(Unit) {
-        Log.i("answer state",responseState.toString())
+        Log.i("answer state", responseState.toString())
         gameViewModel.generateQuestionElements()
 //        gameViewModel.generateAnswer()
     }
     val optionNumbers = gameViewModel.optionNumbers
+    val usersAnswerList = gameViewModel.userAnswerList
 
 
     Scaffold { innerPadding ->
@@ -84,33 +68,54 @@ fun Game(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            if (responseState==ResponseState.Loading){
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Loading()
+            if (responseState == ResponseState.Loading) {
+                Loading()
 
-                }
-            }else{
+
+            } else {
                 Box(
                     modifier = Modifier
                         .weight(0.5f),
-                    contentAlignment = Alignment.TopCenter
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth(),
-                        text = "6",
-                        style = TextStyle(
-                            fontSize = 40.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Center
+                            .fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            text = "6",
+                            style = TextStyle(
+                                fontSize = 40.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                textAlign = TextAlign.Center
 
+                            )
                         )
-                    )
+
+                        LazyRow(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            itemsIndexed(usersAnswerList) { idx, userAnswerDataItem ->
+                                DataItemCard(
+                                    modifier = Modifier
+                                        .size(80.dp)
+                                        .padding(0.dp),
+                                    dataItem = userAnswerDataItem,
+                                    selectAction = { gameViewModel.removeUserAnswerList(idx = idx) },
+                                    shape = RoundedCornerShape(0)
+                                )
+                            }
+                        }
+                    }
+
+
                 }
 
                 Box(
@@ -119,17 +124,30 @@ fun Game(
                     contentAlignment = Alignment.Center
                 ) {
                     LazyVerticalGrid(
+                        modifier = Modifier
+                            .wrapContentSize(),
                         columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(20.dp)
                     ) {
-                        items(optionNumbers){dataItem->
+
+                        itemsIndexed(optionNumbers) { idx, numberDataItem ->
                             DataItemCard(
                                 modifier = Modifier
-                                    .size(100.dp),
-                                dataItem = dataItem,
+                                    .size(100.dp)
+                                    .padding(MaterialTheme.dimens.gameDimensions.padding08),
+                                dataItem = numberDataItem,
                                 selectAction = {
-                                    dataItem.isSelected =true
-                                    Log.i("answer data item",dataItem.toString())
+                                    if (!numberDataItem.isSelected) {
+                                        gameViewModel.updateOptionNumbersValues(
+                                            idx = idx,
+                                            isSelected = true
+                                        )
+                                    }/*else{
+                                        gameViewModel.updateOptionNumbersValues(
+                                            idx = idx,
+                                            isSelected = false
+                                        )
+                                        gameViewModel.removeUserAnswerList(idx = idx)
+                                    }*/
                                 }
                             )
                         }
@@ -139,22 +157,26 @@ fun Game(
                     modifier = Modifier
                         .weight(0.1f),
                     contentAlignment = Alignment.Center
-                ){
+                ) {
                     LazyRow(
                         modifier = Modifier
                             .fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center,
                     ) {
-                        items(operatorsList){operatorDataItem->
+                        itemsIndexed(operatorsList) { idx,operatorDataItem ->
                             DataItemCard(
                                 modifier = Modifier
                                     .size(80.dp)
                                     .fillMaxWidth(),
                                 color = MaterialTheme.colorScheme.primary,
                                 dataItem = operatorDataItem,
+                                shape = RoundedCornerShape(0),
                                 selectAction = {
-                                    operatorDataItem.isSelected =true
+                                    if (!operatorDataItem.isSelected){
+                                        gameViewModel.updateOperatorList(idx =idx, isSelected = true )
+                                    }
+
                                 }
                             )
                         }
