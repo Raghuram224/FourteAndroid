@@ -21,6 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -30,6 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.fourteandroid.ui.theme.Purple
 import com.example.fourteandroid.ui.theme.dimens
+import com.example.fourteandroid.view.data.AnswerType
+import com.example.fourteandroid.view.data.DataItem
 import com.example.fourteandroid.view.data.ResponseState
 import com.example.fourteandroid.view.presentation.game.DataItemCard
 import com.example.fourteandroid.view.presentation.game.Loading
@@ -50,9 +54,12 @@ fun Game(
     val userAnswer by gameViewModel.userAnswer.collectAsState()
     val correctAnswer by gameViewModel.correctAnswer.collectAsState()
     val isUserGuessed by gameViewModel.isUserGuessed.collectAsState()
-
+    val isOptionsShuffled = remember {
+       mutableStateOf( false)
+    }
     LaunchedEffect(Unit) {
-        gameViewModel.generateQuestionElements()
+        gameViewModel.reset()
+        gameViewModel.generateQuestions()
     }
     LaunchedEffect(responseState) {
         Log.i("answer state", responseState.toString())
@@ -60,14 +67,16 @@ fun Game(
 
         if (responseState==ResponseState.QnGenerated){
             Log.i("computer list",operatorsList.toString())
-            gameViewModel.updateOptionNumbersList(list = optionNumbersList)
+            gameViewModel.updateOptionNumbersList(numberList = optionNumbersList)
 //            gameViewModel.generateAnswer(userAnswerList =actualQn )
 
         }else if (responseState==ResponseState.Success){
-            gameViewModel.updateCorrectAnswer(list = actualQn)
+            gameViewModel.updateCorrectAnswer(answerList = actualQn, answerType = AnswerType.Computer)
         }
 
     }
+
+
     LaunchedEffect(userAnswerList.size) {
         if (userAnswerList.isNotEmpty()){
 
@@ -76,7 +85,7 @@ fun Game(
                 Log.i("correct answer" ,"right answer")
 
             }
-            gameViewModel.getUserAnswer(userAnswerList = userAnswerList)
+            gameViewModel.getAnswer(answerList = userAnswerList, answerType = AnswerType.User)
         }else{
             Log.i("get answer else","nothing")
         }
@@ -84,6 +93,7 @@ fun Game(
     }
     LaunchedEffect(isUserGuessed) {
         if (isUserGuessed){
+            gameViewModel.updateUserGuessedCorrectAnswerList()
             gameOverNavigation()
         }
 
@@ -227,7 +237,7 @@ fun Game(
                                 shape = RoundedCornerShape(0),
                                 selectAction = {
 
-                                        gameViewModel.updateOperatorList(idx =idx, isSelected = true )
+                                        gameViewModel.updateOperatorList(idx =idx )
 
 
                                 }

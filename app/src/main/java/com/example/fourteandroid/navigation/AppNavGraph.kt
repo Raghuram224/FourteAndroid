@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.fourteandroid.view.presentation.gameOver.GameOver
 import com.example.fourteandroid.view.presentation.home.Home
+import com.example.fourteandroid.view.viewModels.GameOverViewModel
 import com.example.fourteandroid.view.viewModels.GameViewModel
 
 @Composable
@@ -25,6 +26,7 @@ fun AppNavGraph(modifier: Modifier = Modifier) {
             Game(
                 gameViewModel = gameViewModel,
                 gameOverNavigation = {
+
                     navController.navigate(Screens.GameOverScreen) {
                         navController.currentDestination?.id?.let { it1 ->
                             navController.popBackStack(
@@ -35,7 +37,9 @@ fun AppNavGraph(modifier: Modifier = Modifier) {
                 })
         }
         composable<Screens.GameOverScreen> {
+            val gameOverViewModel = hiltViewModel<GameOverViewModel>()
             GameOver(
+                gameOverViewModel = gameOverViewModel,
                 backToGameNavigation = {
                     navController.navigate(Screens.GameScreen) {
                         navController.currentDestination?.id?.let { it1 ->

@@ -9,10 +9,13 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -28,21 +31,26 @@ import com.example.fourteandroid.ui.theme.dimens
 import com.example.fourteandroid.view.data.DataItem
 import com.example.fourteandroid.view.data.DataTypes
 import com.example.fourteandroid.view.presentation.game.DataItemCard
+import com.example.fourteandroid.view.viewModels.GameOverViewModel
 
 @Composable
 fun GameOver(
     modifier: Modifier = Modifier,
-    backToGameNavigation:()->Unit
+    gameOverViewModel: GameOverViewModel,
+    backToGameNavigation: () -> Unit
 ) {
-    val answer = 11
-    val score =2
-    val dataItemsList = listOf(
-        DataItem(dataType = DataTypes.Number, data = "49", isSelected = false),
-        DataItem(dataType = DataTypes.Add, data = "+", isSelected = false),
-        DataItem(dataType = DataTypes.Number, data = "26", isSelected = false),
-        DataItem(dataType = DataTypes.Subtract, data = "-", isSelected = false),
-        DataItem(dataType = DataTypes.Number, data = "6", isSelected = false)
-    )
+
+//    val answer = 11
+//    val score =2
+//    val dataItemsList = listOf(
+//        DataItem(dataType = DataTypes.Number, data = "49", isSelected = false),
+//        DataItem(dataType = DataTypes.Add, data = "+", isSelected = false),
+//        DataItem(dataType = DataTypes.Number, data = "26", isSelected = false),
+//        DataItem(dataType = DataTypes.Subtract, data = "-", isSelected = false),
+//        DataItem(dataType = DataTypes.Number, data = "6", isSelected = false)
+//    )
+    val answer by gameOverViewModel.correctAnswer.collectAsState()
+    val score by gameOverViewModel.score.collectAsState()
 
     Scaffold { innerPadding ->
         Column(
@@ -69,12 +77,12 @@ fun GameOver(
                     .padding(MaterialTheme.dimens.gameOverDimensions.padding16),
                 text = stringResource(id = R.string.answer),
                 style = TextStyle(
-                    fontSize =MaterialTheme.typography.bodyLarge.fontSize,
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center,
 
-                )
+                    )
             )
             Text(
                 modifier = Modifier
@@ -95,7 +103,7 @@ fun GameOver(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                items(dataItemsList) { dataItem ->
+                items(gameOverViewModel.userGuessedAnswerList) { dataItem ->
                     DataItemCard(
                         modifier = Modifier
                             .size(50.dp)
@@ -134,8 +142,14 @@ fun GameOver(
             Button(
                 modifier = Modifier
                     .padding(MaterialTheme.dimens.gameOverDimensions.padding16),
-                onClick = { backToGameNavigation() },
-                shape = RoundedCornerShape(5)
+                onClick = {
+                    backToGameNavigation()
+                    gameOverViewModel.reset()
+                },
+                shape = RoundedCornerShape(5),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary
+                )
             ) {
                 Text(
                     modifier = Modifier
@@ -153,8 +167,8 @@ fun GameOver(
     }
 }
 
-@Preview(showSystemUi = true)
-@Composable
-private fun PreviewGameOver() {
-    GameOver(backToGameNavigation = {})
-}
+//@Preview(showSystemUi = true)
+//@Composable
+//private fun PreviewGameOver() {
+//    GameOver(backToGameNavigation = {})
+//}
