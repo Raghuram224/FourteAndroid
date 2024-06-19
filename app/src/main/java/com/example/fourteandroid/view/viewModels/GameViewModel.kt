@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.fourteandroid.view.data.AnswerType
 import com.example.fourteandroid.view.data.DataItem
 import com.example.fourteandroid.view.data.DataTypes
 import com.example.fourteandroid.view.data.ResponseState
@@ -20,6 +21,12 @@ class GameViewModel @Inject constructor() : ViewModel() {
     private val _responseState = MutableStateFlow<ResponseState>(ResponseState.Empty)
     val responseState: StateFlow<ResponseState> = _responseState.asStateFlow()
     private val _userAnswer = MutableStateFlow<Int?>(null)
+    private val qnOperatorsList = mutableListOf<String>()
+    private val _qnNumberList = mutableListOf<DataItem>()
+    private val _actualQn = mutableListOf<DataItem>()
+    private val _userAnswerList = mutableStateListOf<DataItem>()
+    private val _optionNumbers = mutableStateListOf<DataItem>()
+    private val _correctAnswer = MutableStateFlow<Int?>(null)
     private val _operatorsList = mutableStateListOf(
         DataItem(
             dataType = DataTypes.Add,
@@ -38,57 +45,49 @@ class GameViewModel @Inject constructor() : ViewModel() {
             ),
         DataItem(
             dataType = DataTypes.Division,
-            data = "/",
+            data = "÷",
 
             )
     )
-    val operatorsList: List<DataItem> = _operatorsList
-
-
     private val operators = mapOf(
         "+" to DataTypes.Add,
         "-" to DataTypes.Subtract,
         "*" to DataTypes.Multiply,
         "/" to DataTypes.Division
     )
-    private val operationsCount = 4
+    private var operationsCount = 4
     private val numbersRange = 50
-
     private val operatorList = operators.entries.toList()
-    private val qnOperatorsList = mutableListOf<String>()
-    private val _qnNumberList = mutableListOf<DataItem>()
-    private val _actualQn = mutableListOf<DataItem>()
 
-    private val _optionNumbers = mutableStateListOf<DataItem>()
     val optionNumbers: List<DataItem> = _optionNumbers
-
-    private val _userAnswerList = mutableStateListOf<DataItem>()
     val userAnswerList: List<DataItem> = _userAnswerList
-    val actualQn:List<DataItem> = _actualQn
+    val actualQn: List<DataItem> = _actualQn
     val userAnswer = _userAnswer.asStateFlow()
-    val  qnNumberList:List<DataItem> = _qnNumberList
+    val qnNumberList: List<DataItem> = _qnNumberList
+    val operatorsList: List<DataItem> = _operatorsList
+    val correctAnswer = _correctAnswer.asStateFlow()
     private fun getRandomOperator() = operatorList.random()
     private fun getRandomNumber() = Random.nextInt(1, numbersRange)
 
     fun generateQuestionElements() {
         viewModelScope.launch {
             updateResponseState(ResponseState.Loading)
-            repeat(operationsCount) {
+            for (i in 0 until operationsCount) {
                 val operator = getRandomOperator()
+
                 val number = getRandomNumber()
-
                 val numberDataItem = DataItem(dataType = DataTypes.Number, data = number.toString())
-                _qnNumberList.add(numberDataItem)
-                qnOperatorsList.add(operator.key)
 
+                _qnNumberList.add(numberDataItem)
                 _actualQn.add(numberDataItem)
-                Log.i("counter",it.toString())
-                if (it<operationsCount-1){
-                    _actualQn.add(DataItem(dataType = operator.value, data = operator.key))
-                }
+
+                qnOperatorsList.add(operator.key)
+                _actualQn.add(DataItem(dataType = operator.value, data = operator.key))
+
+                Log.i("actual qn", actualQn.toList().toString())
 
             }
-//            generateAnswer()
+            //            generateAnswer()
 
             Log.i("list data", _actualQn.toString())
             updateResponseState(responseState = ResponseState.QnGenerated)
@@ -96,19 +95,27 @@ class GameViewModel @Inject constructor() : ViewModel() {
 
     }
 
-    fun generateAnswer(userAnswerList:List<DataItem>): Int {
+
+    private fun generateAnswer(userAnswerList: List<DataItem>, answerType: AnswerType): Int {
         if (userAnswerList.isEmpty()) return 0
 
         var result = 0
         var currentOperation: DataTypes? = null
 
         for (dataItem in userAnswerList) {
+//            Log.i("step",currentOperation.toString())
             when (dataItem.dataType) {
                 DataTypes.Number -> {
                     val number = dataItem.data.toInt()
+                    Log.i("step ",number.toString())
                     result = if (currentOperation == null) {
-                        result+number
+                        if (answerType == AnswerType.User){
+                             ("$result" + "$number").toInt()
+                        }else{
+                            result+number
+                        }
                     } else {
+//                        Log.i("step",currentOperation.toString())
                         when (currentOperation) {
                             DataTypes.Add -> result + number
                             DataTypes.Subtract -> result - number
@@ -119,23 +126,30 @@ class GameViewModel @Inject constructor() : ViewModel() {
                     }
                 }
 
-                else -> currentOperation = dataItem.dataType
+                else -> {
+                    currentOperation = dataItem.dataType
+                    Log.i("step",currentOperation.toString())
+                }
             }
         }
+        Log.i("step Computer","Computer End**")
+
 
 //        updateOptionNumbersList(_qnNumberList)
         Log.i("answer", result.toString())
         Log.i("answer qn operator", qnOperatorsList.toString())
         Log.i("answer qn numbers", _qnNumberList.toString())
-        if (userAnswerList.isEmpty()){
+        if (userAnswerList.isEmpty()) {
             _userAnswer.value = null
-        }else{
+        } else {
             _userAnswer.value = result
         }
 
 
         return result
     }
+
+
 
     private fun updateResponseState(responseState: ResponseState) {
         _responseState.value = responseState
@@ -145,6 +159,7 @@ class GameViewModel @Inject constructor() : ViewModel() {
         _optionNumbers.clear()
         _optionNumbers.addAll(list)
         updateResponseState(ResponseState.Success)
+
     }
 
     fun updateOptionNumbersValues(idx: Int, isSelected: Boolean) {
@@ -170,14 +185,14 @@ class GameViewModel @Inject constructor() : ViewModel() {
                         updateOptionNumbersValues(idx = index, isSelected = false)
                     }
                 }
-            } else {
+            } /*else {
                 _operatorsList.forEachIndexed { index, operatorItem ->
                     if (operatorItem.data == dataItem.data) {
                         updateOperatorList(idx = index, isSelected = false)
                     }
                 }
-            }
-            if (userAnswerList.isEmpty()){
+            }*/
+            if (userAnswerList.isEmpty()) {
                 _userAnswer.value = null
             }
         }
@@ -185,10 +200,25 @@ class GameViewModel @Inject constructor() : ViewModel() {
     }
 
     fun updateOperatorList(idx: Int, isSelected: Boolean) {
-        _operatorsList[idx] = _operatorsList[idx].copy(isSelected = isSelected)
-        if (_operatorsList[idx].isSelected) {
-            val dataItem = _operatorsList[idx].copy(isSelected = false)
-            updateUserAnswerList(dataItem)
+//        _operatorsList[idx] = _operatorsList[idx].copy(isSelected = isSelected)
+//        if (_operatorsList[idx].isSelected) {
+
+            updateUserAnswerList(operatorsList[idx])
+//        }
+    }
+
+    fun updateCorrectAnswer(list: List<DataItem>) {
+        _correctAnswer.value = generateAnswer(userAnswerList = list, answerType = AnswerType.Computer)
+    }
+
+    fun getUserAnswer(userAnswerList: List<DataItem>) {
+
+        val result = generateAnswer(userAnswerList = userAnswerList, answerType = AnswerType.User)
+        Log.i("get answer", result.toString())
+        if (userAnswerList.isEmpty()) {
+            _userAnswer.value = null
+        } else {
+            _userAnswer.value = result
         }
     }
 }

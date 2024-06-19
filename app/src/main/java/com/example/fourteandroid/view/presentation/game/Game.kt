@@ -2,7 +2,7 @@ import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,9 +11,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -28,17 +26,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.fourteandroid.ui.theme.Purple
 import com.example.fourteandroid.ui.theme.dimens
-import com.example.fourteandroid.view.data.DataItem
-import com.example.fourteandroid.view.data.DataTypes
 import com.example.fourteandroid.view.data.ResponseState
 import com.example.fourteandroid.view.presentation.game.DataItemCard
 import com.example.fourteandroid.view.presentation.game.Loading
 import com.example.fourteandroid.view.viewModels.GameViewModel
-import kotlinx.coroutines.delay
 
 
 @Composable
@@ -52,6 +47,7 @@ fun Game(
     val actualQn =gameViewModel.actualQn
     val optionNumbersList = gameViewModel.qnNumberList
     val userAnswer by gameViewModel.userAnswer.collectAsState()
+    val correctAnswer by gameViewModel.correctAnswer.collectAsState()
 
     LaunchedEffect(Unit) {
 
@@ -64,17 +60,28 @@ fun Game(
         Log.i("answer  list", userAnswerList.toList().toString())
 
         if (responseState==ResponseState.QnGenerated){
+            Log.i("computer list",operatorsList.toString())
             gameViewModel.updateOptionNumbersList(list = optionNumbersList)
 //            gameViewModel.generateAnswer(userAnswerList =actualQn )
+
+        }else if (responseState==ResponseState.Success){
+            gameViewModel.updateCorrectAnswer(list = actualQn)
         }
 
     }
     LaunchedEffect(userAnswerList.size) {
         if (userAnswerList.isNotEmpty()){
-            gameViewModel.generateAnswer(userAnswerList = userAnswerList)
+            if (userAnswer==correctAnswer){
+                Log.i("correct answer" ,"right answer")
+            }
+            gameViewModel.getUserAnswer(userAnswerList = userAnswerList)
+//            gameViewModel.generateAnswer(userAnswerList = userAnswerList)
+        }else{
+            Log.i("get answer else","nothing")
         }
 
     }
+
     val optionNumbers = gameViewModel.optionNumbers
     val usersAnswerList = gameViewModel.userAnswerList
 
@@ -92,7 +99,6 @@ fun Game(
             if (responseState == ResponseState.Loading) {
                 Loading()
 
-
             } else {
                 Box(
                     modifier = Modifier
@@ -102,17 +108,36 @@ fun Game(
                     Column(
                         modifier = Modifier
                             .fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.Start
                     ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(MaterialTheme.dimens.gameDimensions.padding08),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            Text(
+                               modifier = Modifier,
+                                text = if (correctAnswer!=null) correctAnswer.toString() else "0",
+                                style = TextStyle(
+                                    fontSize = 30.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    textAlign = TextAlign.Center,
+                                    color = Purple
+
+                                )
+                            )
+                        }
                         Text(
                             modifier = Modifier
                                 .fillMaxWidth(),
-                            text = if (userAnswer!=null) userAnswer.toString() else "empty",
+                            text = if (userAnswer!=null && usersAnswerList.isNotEmpty()) userAnswer.toString() else "",
                             style = TextStyle(
                                 fontSize = 40.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.primary
 
                             )
                         )
@@ -194,9 +219,9 @@ fun Game(
                                 dataItem = operatorDataItem,
                                 shape = RoundedCornerShape(0),
                                 selectAction = {
-                                    if (!operatorDataItem.isSelected){
+
                                         gameViewModel.updateOperatorList(idx =idx, isSelected = true )
-                                    }
+
 
                                 }
                             )

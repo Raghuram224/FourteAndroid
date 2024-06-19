@@ -21,3 +21,7 @@ enum class ResponseState{
     QnGenerated,
     Success
 }
+enum class AnswerType{
+    Computer,
+    User
+}
