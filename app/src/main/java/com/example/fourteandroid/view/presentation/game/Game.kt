@@ -40,6 +40,7 @@ import com.example.fourteandroid.view.viewModels.GameViewModel
 fun Game(
     modifier: Modifier = Modifier,
     gameViewModel: GameViewModel,
+    gameOverNavigation:()->Unit,
 ) {
     val operatorsList = gameViewModel.operatorsList
     val responseState by gameViewModel.responseState.collectAsState()
@@ -48,12 +49,10 @@ fun Game(
     val optionNumbersList = gameViewModel.qnNumberList
     val userAnswer by gameViewModel.userAnswer.collectAsState()
     val correctAnswer by gameViewModel.correctAnswer.collectAsState()
+    val isUserGuessed by gameViewModel.isUserGuessed.collectAsState()
 
     LaunchedEffect(Unit) {
-
         gameViewModel.generateQuestionElements()
-//        gameViewModel.generateAnswer()
-
     }
     LaunchedEffect(responseState) {
         Log.i("answer state", responseState.toString())
@@ -71,13 +70,21 @@ fun Game(
     }
     LaunchedEffect(userAnswerList.size) {
         if (userAnswerList.isNotEmpty()){
+
             if (userAnswer==correctAnswer){
+                Log.i("test",userAnswer.toString()+"$correctAnswer")
                 Log.i("correct answer" ,"right answer")
+
             }
             gameViewModel.getUserAnswer(userAnswerList = userAnswerList)
-//            gameViewModel.generateAnswer(userAnswerList = userAnswerList)
         }else{
             Log.i("get answer else","nothing")
+        }
+
+    }
+    LaunchedEffect(isUserGuessed) {
+        if (isUserGuessed){
+            gameOverNavigation()
         }
 
     }

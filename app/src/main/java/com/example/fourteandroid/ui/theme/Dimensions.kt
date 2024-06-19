@@ -29,6 +29,26 @@ data class GameDimensions(
     val itemHorizontalPadding16: Dp = 16.dp,
     val itemVerticalPadding16: Dp = 16.dp
 )
+data class GameOverDimensions(
+    val padding02: Dp = 4.dp,
+    val padding04: Dp = 4.dp,
+    val padding08: Dp = 8.dp,
+    val padding10: Dp = 8.dp,
+    val padding12: Dp = 12.dp,
+    val padding16: Dp = 16.dp,
+    val padding20: Dp = 20.dp,
+
+    val pageHorizontalPadding16: Dp = 16.dp,
+    val pageVerticalPadding16: Dp = 16.dp,
+    val pageVerticalPadding08: Dp = 8.dp,
+    val pageHorizontalPadding08: Dp = 8.dp,
+    val itemHorizontalPadding04: Dp = 4.dp,
+    val itemHorizontalPadding08: Dp = 8.dp,
+    val itemVerticalPadding08: Dp = 8.dp,
+    val itemVerticalPadding04: Dp = 8.dp,
+    val itemHorizontalPadding16: Dp = 16.dp,
+    val itemVerticalPadding16: Dp = 16.dp
+)
 
 data class CoreDimensions(
     val padding02: Dp = 4.dp,
@@ -66,6 +86,7 @@ data class CoreDimensions(
 data class Dimensions(
     val gameDimensions: GameDimensions = GameDimensions(),
     val coreDimensions: CoreDimensions = CoreDimensions(),
+    val gameOverDimensions: GameOverDimensions = GameOverDimensions()
 
     )
 

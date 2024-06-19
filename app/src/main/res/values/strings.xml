@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">FourteAndroid</string>
     <string name="start">Start</string>
+    <string name="congrats_you_got_it">Congrats you got it!</string>
+    <string name="score">Score</string>
+    <string name="answer">Answer</string>
+    <string name="next">Next</string>
 </resources>

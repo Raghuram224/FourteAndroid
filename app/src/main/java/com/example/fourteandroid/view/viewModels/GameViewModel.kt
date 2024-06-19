@@ -27,7 +27,8 @@ class GameViewModel @Inject constructor() : ViewModel() {
     private val _userAnswerList = mutableStateListOf<DataItem>()
     private val _optionNumbers = mutableStateListOf<DataItem>()
     private val _correctAnswer = MutableStateFlow<Int?>(null)
-    private val _operatorsList = mutableStateListOf(
+    private val _isUserGuessed = MutableStateFlow(false)
+    private val _operatorsList = mutableListOf(
         DataItem(
             dataType = DataTypes.Add,
             data = "+",
@@ -66,6 +67,7 @@ class GameViewModel @Inject constructor() : ViewModel() {
     val qnNumberList: List<DataItem> = _qnNumberList
     val operatorsList: List<DataItem> = _operatorsList
     val correctAnswer = _correctAnswer.asStateFlow()
+    val isUserGuessed = _isUserGuessed.asStateFlow()
     private fun getRandomOperator() = operatorList.random()
     private fun getRandomNumber() = Random.nextInt(1, numbersRange)
 
@@ -139,11 +141,11 @@ class GameViewModel @Inject constructor() : ViewModel() {
         Log.i("answer", result.toString())
         Log.i("answer qn operator", qnOperatorsList.toString())
         Log.i("answer qn numbers", _qnNumberList.toString())
-        if (userAnswerList.isEmpty()) {
+        /*if (userAnswerList.isEmpty()) {
             _userAnswer.value = null
         } else {
             _userAnswer.value = result
-        }
+        }*/
 
 
         return result
@@ -219,6 +221,10 @@ class GameViewModel @Inject constructor() : ViewModel() {
             _userAnswer.value = null
         } else {
             _userAnswer.value = result
+        }
+
+        if (userAnswer.value == correctAnswer.value){
+            _isUserGuessed.value =true
         }
     }
 }
