@@ -5,4 +5,14 @@
     <string name="score">Score</string>
     <string name="answer">Answer</string>
     <string name="next">Next</string>
+    <string name="endless">Endless</string>
+    <string name="timed">Timed</string>
+    <string name="solve_them_all">Solve\'em all</string>
+    <string name="time">Time</string>
+    <string name="buckle_up">Buckle up!</string>
+    <string name="score_board">Score Board</string>
+    <string name="play_again">Play again</string>
+    <string name="back_to_menu">Back to menu</string>
+
+
 </resources>

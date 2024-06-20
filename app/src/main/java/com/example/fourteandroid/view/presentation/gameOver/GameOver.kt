@@ -1,5 +1,6 @@
 package com.example.fourteandroid.view.presentation.gameOver
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,23 +23,24 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.fourteandroid.R
 import com.example.fourteandroid.ui.theme.Purple
 import com.example.fourteandroid.ui.theme.dimens
-import com.example.fourteandroid.view.data.DataItem
-import com.example.fourteandroid.view.data.DataTypes
 import com.example.fourteandroid.view.presentation.game.DataItemCard
-import com.example.fourteandroid.view.viewModels.GameOverViewModel
+import com.example.fourteandroid.viewModels.GameOverViewModel
 
 @Composable
 fun GameOver(
     modifier: Modifier = Modifier,
     gameOverViewModel: GameOverViewModel,
-    backToGameNavigation: () -> Unit
-) {
+    backToGameNavigationEndlessMode: () -> Unit,
+    menuNavigation:()->Unit,
+
+//    backToGameNavigationTimedMode: () -> Unit,
+
+    ) {
 
 //    val answer = 11
 //    val score =2
@@ -51,7 +53,9 @@ fun GameOver(
 //    )
     val answer by gameOverViewModel.correctAnswer.collectAsState()
     val score by gameOverViewModel.score.collectAsState()
-
+    BackHandler {
+        backToGameNavigationEndlessMode()
+    }
     Scaffold { innerPadding ->
         Column(
             modifier = Modifier
@@ -59,61 +63,76 @@ fun GameOver(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(MaterialTheme.dimens.gameOverDimensions.padding08),
-                text = stringResource(id = R.string.congrats_you_got_it),
-                style = TextStyle(
-                    fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Purple,
-                    textAlign = TextAlign.Center
-                )
-            )
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(MaterialTheme.dimens.gameOverDimensions.padding16),
-                text = stringResource(id = R.string.answer),
-                style = TextStyle(
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center,
-
+            if (!gameOverViewModel.isTimedMode) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(MaterialTheme.dimens.gameOverDimensions.padding08),
+                    text = stringResource(id = R.string.congrats_you_got_it),
+                    style = TextStyle(
+                        fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Purple,
+                        textAlign = TextAlign.Center
                     )
-            )
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(MaterialTheme.dimens.gameOverDimensions.padding16),
-                text = answer.toString(),
-                style = TextStyle(
-                    fontSize = 45.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.secondary,
-                    textAlign = TextAlign.Center
                 )
-            )
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(MaterialTheme.dimens.gameOverDimensions.padding16),
+                    text = stringResource(id = R.string.answer),
+                    style = TextStyle(
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.Center,
 
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                items(gameOverViewModel.userGuessedAnswerList) { dataItem ->
-                    DataItemCard(
-                        modifier = Modifier
-                            .size(50.dp)
-                            .fillMaxWidth(),
-                        dataItem = dataItem,
-                        selectAction = { /*TODO*/ },
-                        shape = RoundedCornerShape(0)
+                        )
+                )
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(MaterialTheme.dimens.gameOverDimensions.padding16),
+                    text = answer.toString(),
+                    style = TextStyle(
+                        fontSize = 45.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.secondary,
+                        textAlign = TextAlign.Center
                     )
+                )
+
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    items(gameOverViewModel.userGuessedAnswerList) { dataItem ->
+                        DataItemCard(
+                            modifier = Modifier
+                                .size(50.dp)
+                                .fillMaxWidth(),
+                            dataItem = dataItem,
+                            selectAction = { /*TODO*/ },
+                            shape = RoundedCornerShape(0)
+                        )
+                    }
+
                 }
-
+            } else {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(MaterialTheme.dimens.gameOverDimensions.padding08),
+                    text = stringResource(id = R.string.score_board),
+                    style = TextStyle(
+                        fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Purple,
+                        textAlign = TextAlign.Center
+                    )
+                )
             }
             Text(
                 modifier = Modifier
@@ -143,7 +162,11 @@ fun GameOver(
                 modifier = Modifier
                     .padding(MaterialTheme.dimens.gameOverDimensions.padding16),
                 onClick = {
-                    backToGameNavigation()
+//                    if (gameOverViewModel.isTimedMode){
+//                        backToGameNavigationTimedMode()
+//                    }else{
+                        backToGameNavigationEndlessMode()
+//                    }
                     gameOverViewModel.reset()
                 },
                 shape = RoundedCornerShape(5),
@@ -154,7 +177,33 @@ fun GameOver(
                 Text(
                     modifier = Modifier
                         .padding(MaterialTheme.dimens.gameOverDimensions.padding08),
-                    text = stringResource(id = R.string.next),
+                    text = stringResource(id = if (gameOverViewModel.isTimedMode) R.string.play_again else R.string.next),
+                    style = TextStyle(
+                        fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+            }
+            Button(
+                modifier = Modifier
+                    .padding(MaterialTheme.dimens.gameOverDimensions.padding16),
+                onClick = {
+//                    if (gameOverViewModel.isTimedMode){
+//                        backToGameNavigationTimedMode()
+//                    }else{
+
+//                    }
+                    menuNavigation()
+                },
+                shape = RoundedCornerShape(5),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Text(
+                    modifier = Modifier
+                        .padding(MaterialTheme.dimens.gameOverDimensions.padding08),
+                    text = stringResource(id = R.string.back_to_menu),
                     style = TextStyle(
                         fontSize = MaterialTheme.typography.titleMedium.fontSize,
                         fontWeight = FontWeight.SemiBold

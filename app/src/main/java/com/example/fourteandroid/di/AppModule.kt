@@ -1,6 +1,6 @@
 package com.example.fourteandroid.di
 
-import com.example.fourteandroid.view.data.local.repo.GameRepository
+import com.example.fourteandroid.data.local.repo.GameRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -1,11 +1,13 @@
-package com.example.fourteandroid.view.data
+package com.example.fourteandroid.data
 
 enum class DataTypes {
     Number,
     Add,
     Subtract,
     Multiply,
-    Division
+    Division,
+    OpenParenthesis,
+    CloseParenthesis
 }
 
 data class DataItem(
@@ -24,4 +26,10 @@ enum class ResponseState{
 enum class AnswerType{
     Computer,
     User
+}
+enum class TimerStatus{
+    Empty,
+    Running,
+    Paused,
+    Finished,
 }

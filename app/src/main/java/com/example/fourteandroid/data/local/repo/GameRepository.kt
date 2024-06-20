@@ -1,15 +1,21 @@
-package com.example.fourteandroid.view.data.local.repo
+package com.example.fourteandroid.data.local.repo
 
 import android.util.Log
+import java.util.Stack
 import androidx.compose.runtime.mutableStateListOf
-import com.example.fourteandroid.view.data.AnswerType
-import com.example.fourteandroid.view.data.DataItem
-import com.example.fourteandroid.view.data.DataTypes
-import com.example.fourteandroid.view.data.ResponseState
+import com.example.fourteandroid.data.AnswerType
+import com.example.fourteandroid.data.DataItem
+import com.example.fourteandroid.data.DataTypes
+import com.example.fourteandroid.data.ResponseState
+import com.example.fourteandroid.data.TimerStatus
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlin.random.Random
 
 class GameRepository {
+
     private val qnOperatorsList = mutableListOf<String>()
     val responseState = MutableStateFlow<ResponseState>(ResponseState.Empty)
     val userAnswer = MutableStateFlow<Int?>(null)
@@ -21,6 +27,7 @@ class GameRepository {
     val isUserGuessed = MutableStateFlow(false)
     var userGuessedCorrectAnswerList = listOf<DataItem>()
     val score = MutableStateFlow(0)
+    val timerStatus = MutableStateFlow(TimerStatus.Empty)
     val operatorsList = mutableListOf(
         DataItem(
             dataType = DataTypes.Add,
@@ -41,14 +48,29 @@ class GameRepository {
             dataType = DataTypes.Division,
             data = "÷",
 
-            )
+            ),
+        /*DataItem(
+            dataType = DataTypes.OpenParenthesis,
+            data = "(",
+
+            ),
+        DataItem(
+            dataType = DataTypes.CloseParenthesis,
+            data = ")",
+
+            )*/
     )
     private val operators = mapOf(
         "+" to DataTypes.Add,
         "-" to DataTypes.Subtract,
         "*" to DataTypes.Multiply,
-        "/" to DataTypes.Division
+        "/" to DataTypes.Division,
+        /*       "(" to DataTypes.OpenParenthesis,
+               ")" to DataTypes.CloseParenthesis*/
     )
+
+    var currentTime = 0
+//    var isTimerStarted = false
     private var operationsCount = 4
     private val numbersRange = 50
     private val operatorList = operators.entries.toList()
@@ -82,7 +104,6 @@ class GameRepository {
 
     }
 
-
     private fun generateAnswer(userAnswerList: List<DataItem>, answerType: AnswerType): Int {
         if (userAnswerList.isEmpty()) return 0
 
@@ -90,7 +111,7 @@ class GameRepository {
         var currentOperation: DataTypes? = null
 
         for (dataItem in userAnswerList) {
-//            Log.i("step",currentOperation.toString())
+            //            Log.i("step",currentOperation.toString())
             when (dataItem.dataType) {
                 DataTypes.Number -> {
                     val number = dataItem.data.toInt()
@@ -102,7 +123,7 @@ class GameRepository {
                             result + number
                         }
                     } else {
-//                        Log.i("step",currentOperation.toString())
+                        //                        Log.i("step",currentOperation.toString())
                         when (currentOperation) {
                             DataTypes.Add -> result + number
                             DataTypes.Subtract -> result - number
@@ -122,18 +143,18 @@ class GameRepository {
         Log.i("step Computer", "Computer End**")
 
 
-//        updateOptionNumbersList(_qnNumberList)
+        //        updateOptionNumbersList(_qnNumberList)
         Log.i("answer", result.toString())
         Log.i("answer qn operator", qnOperatorsList.toString())
         Log.i("answer qn numbers", qnNumberList.toString())
         if (userAnswerList.isEmpty()) {
             userAnswer.value = null
         } else {
-//            _userAnswer.value = result
+            //            _userAnswer.value = result
         }
 
 
-        return result
+        return  result
     }
 
 
@@ -193,12 +214,12 @@ class GameRepository {
 //        }
     }
 
-    fun updateCorrectAnswer(list: List<DataItem>,answerType: AnswerType) {
+    fun updateCorrectAnswer(list: List<DataItem>, answerType: AnswerType) {
         correctAnswer.value =
             generateAnswer(userAnswerList = list, answerType = answerType)
     }
 
-    fun getUserAnswer(userAnswerList: List<DataItem>,answerType: AnswerType) {
+    fun getUserAnswer(userAnswerList: List<DataItem>, answerType: AnswerType) {
 
         val result = generateAnswer(userAnswerList = userAnswerList, answerType = answerType)
         Log.i("get answer", result.toString())
@@ -210,18 +231,65 @@ class GameRepository {
 
         if (userAnswer.value == correctAnswer.value) {
             isUserGuessed.value = true
-            score.value+=1
+            score.value += 1
         }
     }
-    fun updateUserGuessedAnswerList(){
+
+    fun updateUserGuessedAnswerList() {
         userGuessedCorrectAnswerList = userAnswerList.toList()
     }
-    fun reset(){
+
+    fun reset() {
         qnNumberList.clear()
         actualQn.clear()
         userAnswerList.clear()
         optionNumbers.clear()
-        isUserGuessed.value =false
+        isUserGuessed.value = false
+//       updateTimerStatus(status = TimerStatus.Empty)
+//        isTimerStarted = false
 
     }
+    ///Timer Mode
+
+    fun pauseTimer() {
+        updateTimerStatus(TimerStatus.Paused)
+    }
+
+    // Resume the timer
+    fun resumeTimer() {
+        updateTimerStatus(TimerStatus.Running)
+    }
+
+    // Timer function with pause and resume handling
+    fun countdownTimer(timerCount: Int): Flow<Int> = flow {
+        currentTime = timerCount
+        updateTimerStatus(TimerStatus.Running)
+
+        while (currentTime >= 0) {
+            if (timerStatus.value == TimerStatus.Running) {
+                emit(currentTime)
+                delay(1000)
+                currentTime--
+            } /*else if (timerStatus.value == TimerStatus.Paused) {*/
+                // Wait until the timer is resumed
+//                while (timerStatus.value == TimerStatus.Paused) {
+//                    delay(100)
+//                }
+//            }
+        }
+
+
+        updateTimerStatus(TimerStatus.Finished)
+
+    }
+
+    fun updateTimerStatus(status: TimerStatus) {
+        timerStatus.value = status
+    }
+    fun changeMode(){
+        reset()
+        score.value =0
+    }
+
+    // Existing methods...
 }
