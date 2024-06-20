@@ -11,17 +11,15 @@ class CountDownTimer(
 ) {
     private var remainingTime = initialMillisInFuture
     private var isPaused = false
-    private val handler: Handler by lazy {
-        Handler(Looper.getMainLooper())
-    }
+    private var handler: Handler?=null
     private var runnable: Runnable? = null
 
-//    init {
-//        handler = Handler(Looper.getMainLooper())
-//    }
+    init {
+        handler = Handler(Looper.getMainLooper())
+    }
 
     fun start() {
-        if (runnable == null) {
+        if (runnable == null ) {
             runnable = object : Runnable {
                 override fun run() {
                     if (isPaused) {
@@ -32,13 +30,13 @@ class CountDownTimer(
                     } else {
                         onTick(remainingTime)
                         remainingTime -= countDownInterval
-                        handler.postDelayed(this, countDownInterval)
+                        handler?.postDelayed(this, countDownInterval)
                     }
                 }
             }
         }
         isPaused = false
-        handler.post(runnable!!)
+        handler?.post(runnable!!)
     }
 
     fun pause() {

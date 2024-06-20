@@ -87,8 +87,11 @@ fun Game(
     }
     LaunchedEffect(timerStatus) {
         Log.i("timer", timerStatus.toString())
-        if (gameViewModel.isTimedMode) {
+        if (gameViewModel.isTimedMode && timerStatus!=TimerStatus.Running && !gameViewModel.isTimerStarted) {
+            Log.i("timer inside", timerStatus.toString())
             gameViewModel.timeController.start()
+            gameViewModel.updateTimerStatus(status = TimerStatus.Running)
+            gameViewModel.isTimerStarted =true
 
         }
         if (timerStatus == TimerStatus.Finished) {
@@ -161,6 +164,7 @@ fun Game(
                     IconButton(onClick = {
                         if (gameViewModel.isTimedMode) {
                             gameViewModel.timeController.pause()
+                            gameViewModel.updateTimerStatus(status = TimerStatus.Paused)
                         }
                         isExitPopupOpen.value = true
 
@@ -383,23 +387,22 @@ fun Game(
                     onDismissRequest = {}
                 )
             }
-//            if (isExitPopupOpen.value) {
-//                ExitAlertDialogExample(
-//                    onDismissRequest = {
-//                        if (gameViewModel.isTimedMode) {
-//                            gameViewModel.timeController.resume()
-//                        }
-//                        isExitPopupOpen.value = false
-//                    },
-//                    onConfirmation = {
-//                        exitNavigation()
-//                        gameViewModel.updateTimerStatus(status = TimerStatus.Empty)
-//                    },
-//                    dialogTitle = "Exit the mode",
-//                    dialogText = "Do you want to exit the mode",
-//                    icon = Icons.Default.ExitToApp
-//                )
+            if (isExitPopupOpen.value) {
+                ExitAlertDialogExample(
+                    onDismissRequest = {
+                        isExitPopupOpen.value = false
+                        gameViewModel.timeController.resume()
+                    },
+                    onConfirmation = {
+                        exitNavigation()
+                        gameViewModel.updateTimerStatus(status = TimerStatus.Empty)
+                    },
+                    dialogTitle = "Exit the mode",
+                    dialogText = "Do you want to exit the mode",
+                    icon = Icons.Default.ExitToApp
+                )
 //            }
+            }
 
         }
     }

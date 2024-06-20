@@ -24,7 +24,11 @@ class GameViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val _timer = MutableStateFlow(0)
-    private val timerCount = 30
+    private val timerCount = 30000L
+    private val interval = 1000L
+    var isTimerStarted =false
+
+    private val _timerStatus = MutableStateFlow(TimerStatus.Empty)
 
 //    val timer = _timer.asStateFlow()
     val optionNumbers: List<DataItem> = gameRepository.optionNumbers
@@ -36,21 +40,21 @@ class GameViewModel @Inject constructor(
     val correctAnswer = gameRepository.correctAnswer.asStateFlow()
     val isUserGuessed = gameRepository.isUserGuessed.asStateFlow()
     val responseState = gameRepository.responseState.asStateFlow()
-    val timerStatus = gameRepository.timerStatus.asStateFlow()
+    val timerStatus = _timerStatus.asStateFlow()
     val timer = _timer.asStateFlow()
 
     //    val optionNumbers = _optionNumbers.shuffled()
     val isTimedMode = savedStateHandle.toRoute<Screens.GameScreen>().isTimedMode
 
     val timeController = CountDownTimer(
-        initialMillisInFuture = 30000, // 30 seconds
-        countDownInterval = 1000, // 1 second
+        initialMillisInFuture = timerCount, // 30 seconds
+        countDownInterval = interval, // 1 second
         onTick = { millisUntilFinished ->
             Log.i("seconds remaining: ",(millisUntilFinished / 1000).toString())
             _timer.value = (millisUntilFinished / 1000).toInt()
         },
         onFinish = {
-            println("done!")
+            updateTimerStatus(status = TimerStatus.Finished)
         }
     )
     fun generateQuestions() {
@@ -91,34 +95,16 @@ class GameViewModel @Inject constructor(
         gameRepository.reset()
     }
 
-    //Timed mode
-
-//    fun startTimer() {
-//        viewModelScope.launch {
-//            if (gameRepository.timerStatus.value != TimerStatus.Running){
-//                gameRepository.countdownTimer(timerCount).collect {
-//                    _timer.value = it
-//                }
-//            }
-//
-//        }
-//
-//
-//    }
-//    fun pauseTimer(){
-//        gameRepository.pauseTimer()
-//    }
-//    fun  resumeTimer(){
-//        gameRepository.resumeTimer()
-//    }
 
     override fun onCleared() {
         super.onCleared()
         gameRepository.changeMode()
     }
+
     fun updateTimerStatus(status: TimerStatus){
-        gameRepository.updateTimerStatus(status = status)
+        _timerStatus.value = status
     }
+
 
 
 

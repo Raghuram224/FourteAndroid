@@ -27,7 +27,6 @@ class GameRepository {
     val isUserGuessed = MutableStateFlow(false)
     var userGuessedCorrectAnswerList = listOf<DataItem>()
     val score = MutableStateFlow(0)
-    val timerStatus = MutableStateFlow(TimerStatus.Empty)
     val operatorsList = mutableListOf(
         DataItem(
             dataType = DataTypes.Add,
@@ -249,43 +248,9 @@ class GameRepository {
 //        isTimerStarted = false
 
     }
-    ///Timer Mode
-
-    fun pauseTimer() {
-        updateTimerStatus(TimerStatus.Paused)
-    }
-
-    // Resume the timer
-    fun resumeTimer() {
-        updateTimerStatus(TimerStatus.Running)
-    }
-
-    // Timer function with pause and resume handling
-    fun countdownTimer(timerCount: Int): Flow<Int> = flow {
-        currentTime = timerCount
-        updateTimerStatus(TimerStatus.Running)
-
-        while (currentTime >= 0) {
-            if (timerStatus.value == TimerStatus.Running) {
-                emit(currentTime)
-                delay(1000)
-                currentTime--
-            } /*else if (timerStatus.value == TimerStatus.Paused) {*/
-                // Wait until the timer is resumed
-//                while (timerStatus.value == TimerStatus.Paused) {
-//                    delay(100)
-//                }
-//            }
-        }
 
 
-        updateTimerStatus(TimerStatus.Finished)
 
-    }
-
-    fun updateTimerStatus(status: TimerStatus) {
-        timerStatus.value = status
-    }
     fun changeMode(){
         reset()
         score.value =0
