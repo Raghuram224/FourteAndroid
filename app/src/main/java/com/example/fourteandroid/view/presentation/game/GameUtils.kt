@@ -2,6 +2,7 @@ package com.example.fourteandroid.view.presentation.game
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,6 +37,46 @@ import com.example.fourteandroid.ui.theme.dimens
 import com.example.fourteandroid.data.DataItem
 import com.example.fourteandroid.data.DataTypes
 
+/*@Composable
+fun DataItemCard(
+    modifier: Modifier = Modifier,
+    dataItem: DataItem,
+    color: Color = MaterialTheme.colorScheme.secondary,
+    selectAction:()->Unit,
+    shape: Shape = RoundedCornerShape(10)
+) {
+    Card(
+        modifier = modifier
+           *//* .padding(MaterialTheme.dimens.gameDimensions.padding08)*//*
+            .clickable { selectAction() },
+        colors = CardDefaults.cardColors(
+            containerColor = if (dataItem.isSelected) MaterialTheme.colorScheme.tertiary
+            else if (dataItem.dataType != DataTypes.Number)  MaterialTheme.colorScheme.primary else color
+        ),
+        shape = shape
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(MaterialTheme.dimens.coreDimensions.padding04),
+                text = dataItem.data,
+                style = TextStyle(
+                    fontSize = 35.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+            )
+        }
+
+    }
+}*/
+
 @Composable
 fun DataItemCard(
     modifier: Modifier = Modifier,
@@ -46,7 +87,6 @@ fun DataItemCard(
 ) {
     Card(
         modifier = modifier
-           /* .padding(MaterialTheme.dimens.gameDimensions.padding08)*/
             .clickable { selectAction() },
         colors = CardDefaults.cardColors(
             containerColor = if (dataItem.isSelected) MaterialTheme.colorScheme.tertiary

@@ -106,7 +106,8 @@ fun Game(
         Log.i("answer  list", userAnswerList.toList().toString())
 
         if (responseState == ResponseState.QnGenerated) {
-            Log.i("computer list", operatorsList.toString())
+            Log.i("computer list", optionNumbersList.toString())
+
             gameViewModel.updateOptionNumbersList(numberList = optionNumbersList)
         } else if (responseState == ResponseState.Success) {
             gameViewModel.updateCorrectAnswer(
@@ -231,7 +232,7 @@ fun Game(
                             Text(
                                 modifier = Modifier
                                     .weight(0.5f),
-                                text = if (correctAnswer != null) correctAnswer.toString() else "",
+                                text = if (correctAnswer != null) correctAnswer.toString() else "?",
                                 style = TextStyle(
                                     fontSize = 30.sp,
                                     fontWeight = FontWeight.SemiBold,
@@ -276,7 +277,7 @@ fun Game(
                         Text(
                             modifier = Modifier
                                 .fillMaxWidth(),
-                            text = if (userAnswer != null && usersAnswerList.isNotEmpty()) userAnswer.toString() else "",
+                            text = if (userAnswer != null && usersAnswerList.isNotEmpty()) userAnswer.toString() else "?",
                             style = TextStyle(
                                 fontSize = 40.sp,
                                 fontWeight = FontWeight.SemiBold,

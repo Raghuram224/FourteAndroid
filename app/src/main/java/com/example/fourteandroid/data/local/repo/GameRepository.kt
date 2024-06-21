@@ -1,17 +1,14 @@
 package com.example.fourteandroid.data.local.repo
 
 import android.util.Log
-import java.util.Stack
 import androidx.compose.runtime.mutableStateListOf
 import com.example.fourteandroid.data.AnswerType
 import com.example.fourteandroid.data.DataItem
 import com.example.fourteandroid.data.DataTypes
 import com.example.fourteandroid.data.ResponseState
-import com.example.fourteandroid.data.TimerStatus
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
+import evaluatePostfix
+import infixToPostfix
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flow
 import kotlin.random.Random
 
 class GameRepository {
@@ -45,10 +42,11 @@ class GameRepository {
             ),
         DataItem(
             dataType = DataTypes.Division,
-            data = "÷",
+//            data = "÷",
+            data = "/",
 
             ),
-        /*DataItem(
+        DataItem(
             dataType = DataTypes.OpenParenthesis,
             data = "(",
 
@@ -57,19 +55,20 @@ class GameRepository {
             dataType = DataTypes.CloseParenthesis,
             data = ")",
 
-            )*/
+            )
     )
     private val operators = mapOf(
         "+" to DataTypes.Add,
         "-" to DataTypes.Subtract,
         "*" to DataTypes.Multiply,
         "/" to DataTypes.Division,
-        /*       "(" to DataTypes.OpenParenthesis,
-               ")" to DataTypes.CloseParenthesis*/
+        /*         "(" to DataTypes.OpenParenthesis,
+                 ")" to DataTypes.CloseParenthesis*/
     )
 
     var currentTime = 0
-//    var isTimerStarted = false
+
+    //    var isTimerStarted = false
     private var operationsCount = 4
     private val numbersRange = 50
     private val operatorList = operators.entries.toList()
@@ -78,7 +77,7 @@ class GameRepository {
 
     fun generateQuestionElements() {
         userGuessedCorrectAnswerList = emptyList()
-
+        val qnCount = operationsCount - 1
         updateResponseState(ResponseState.Loading)
         for (i in 0 until operationsCount) {
             val operator = getRandomOperator()
@@ -89,8 +88,11 @@ class GameRepository {
             qnNumberList.add(numberDataItem)
             actualQn.add(numberDataItem)
 
-            qnOperatorsList.add(operator.key)
-            actualQn.add(DataItem(dataType = operator.value, data = operator.key))
+            if (i < qnCount) {
+                qnOperatorsList.add(operator.key)
+                actualQn.add(DataItem(dataType = operator.value, data = operator.key))
+
+            }
 
 //                Log.i("actual qn", actualQn.toList().toString())
 
@@ -103,59 +105,79 @@ class GameRepository {
 
     }
 
-    private fun generateAnswer(userAnswerList: List<DataItem>, answerType: AnswerType): Int {
-        if (userAnswerList.isEmpty()) return 0
+   /* private fun generateAnswer(userAnswerList: List<DataItem>, answerType: AnswerType): Int {
+            if (userAnswerList.isEmpty()) return 0
 
-        var result = 0
-        var currentOperation: DataTypes? = null
+            var result = 0
+            var currentOperation: DataTypes? = null
 
-        for (dataItem in userAnswerList) {
-            //            Log.i("step",currentOperation.toString())
-            when (dataItem.dataType) {
-                DataTypes.Number -> {
-                    val number = dataItem.data.toInt()
-                    Log.i("step ", number.toString())
-                    result = if (currentOperation == null) {
-                        if (answerType == AnswerType.User) {
-                            ("$result" + "$number").toInt()
+            for (dataItem in userAnswerList) {
+                //            Log.i("step",currentOperation.toString())
+                when (dataItem.dataType) {
+                    DataTypes.Number -> {
+                        val number = dataItem.data.toInt()
+                        Log.i("step ", number.toString())
+                        result = if (currentOperation == null) {
+                            if (answerType == AnswerType.User) {
+                                ("$result" + "$number").toInt()
+                            } else {
+                                result + number
+                            }
                         } else {
-                            result + number
-                        }
-                    } else {
-                        //                        Log.i("step",currentOperation.toString())
-                        when (currentOperation) {
-                            DataTypes.Add -> result + number
-                            DataTypes.Subtract -> result - number
-                            DataTypes.Multiply -> result * number
-                            DataTypes.Division -> result / number
-                            else -> result
+                            //                        Log.i("step",currentOperation.toString())
+                            when (currentOperation) {
+                                DataTypes.Add -> result + number
+                                DataTypes.Subtract -> result - number
+                                DataTypes.Multiply -> result * number
+                                DataTypes.Division -> result / number
+                                else -> result
+                            }
                         }
                     }
-                }
 
-                else -> {
-                    currentOperation = dataItem.dataType
-                    Log.i("step", currentOperation.toString())
+                    else -> {
+                        currentOperation = dataItem.dataType
+                        Log.i("step", currentOperation.toString())
+                    }
                 }
             }
+            Log.i("step Computer", "Computer End**")
+
+
+            //        updateOptionNumbersList(_qnNumberList)
+            Log.i("answer", result.toString())
+            Log.i("answer qn operator", qnOperatorsList.toString())
+            Log.i("answer qn numbers", qnNumberList.toString())
+            if (userAnswerList.isEmpty()) {
+                userAnswer.value = null
+            } else {
+                //            _userAnswer.value = result
+            }
+
+
+            return  result
         }
-        Log.i("step Computer", "Computer End**")
-
-
-        //        updateOptionNumbersList(_qnNumberList)
-        Log.i("answer", result.toString())
-        Log.i("answer qn operator", qnOperatorsList.toString())
-        Log.i("answer qn numbers", qnNumberList.toString())
-        if (userAnswerList.isEmpty()) {
-            userAnswer.value = null
+*/
+    private fun generateAnswer(userAnswerList: List<DataItem>, answerType: AnswerType): Int? {
+        val operatorsList = listOf("+", "-", "/", "*", "(", ")")
+        if (userAnswerList.isEmpty()) return null
+        val expressionList = userAnswerList.map { it.data }
+        Log.i("expression list", expressionList.toString())
+        val postfix = infixToPostfix(expressionList)
+        println("Postfix: $postfix") // Debugging line to show the postfix expression
+        /*return if (operatorsList.contains(postfix?.last()) && postfix?.size==1) {
+            null
         } else {
-            //            _userAnswer.value = result
-        }
+            val result = postfix?.let { evaluatePostfix(it) }
+            Log.i("expression result", result.toString())
+            result
+        }*/
 
+       val result = postfix?.let { evaluatePostfix(it) }
+       Log.i("expression result", result.toString())
+       return result
 
-        return  result
     }
-
 
     private fun updateResponseState(responseState: ResponseState) {
         this.responseState.value = responseState
@@ -216,6 +238,7 @@ class GameRepository {
     fun updateCorrectAnswer(list: List<DataItem>, answerType: AnswerType) {
         correctAnswer.value =
             generateAnswer(userAnswerList = list, answerType = answerType)
+        Log.i("correct answer !!",correctAnswer.value.toString())
     }
 
     fun getUserAnswer(userAnswerList: List<DataItem>, answerType: AnswerType) {
@@ -250,11 +273,9 @@ class GameRepository {
     }
 
 
-
-    fun changeMode(){
+    fun changeMode() {
         reset()
-        score.value =0
+        score.value = 0
     }
 
-    // Existing methods...
 }
