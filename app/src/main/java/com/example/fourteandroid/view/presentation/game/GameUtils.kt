@@ -87,6 +87,7 @@ fun DataItemCard(
 ) {
     Card(
         modifier = modifier
+
             .clickable { selectAction() },
         colors = CardDefaults.cardColors(
             containerColor = if (dataItem.isSelected) MaterialTheme.colorScheme.tertiary

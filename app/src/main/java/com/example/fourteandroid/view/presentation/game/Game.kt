@@ -1,5 +1,11 @@
 import android.util.Log
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,17 +46,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.fourteandroid.R
-import com.example.fourteandroid.ui.theme.Purple
-import com.example.fourteandroid.ui.theme.dimens
 import com.example.fourteandroid.data.AnswerType
 import com.example.fourteandroid.data.ResponseState
 import com.example.fourteandroid.data.TimerStatus
+import com.example.fourteandroid.ui.theme.Purple
+import com.example.fourteandroid.ui.theme.dimens
 import com.example.fourteandroid.view.presentation.game.DataItemCard
 import com.example.fourteandroid.view.presentation.game.ExitAlertDialogExample
 import com.example.fourteandroid.view.presentation.game.Loading
 import com.example.fourteandroid.view.presentation.game.TimedModeDialog
 import com.example.fourteandroid.viewModels.GameViewModel
-import kotlinx.coroutines.delay
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,6 +84,8 @@ fun Game(
     val isExitPopupOpen = remember {
         mutableStateOf(false)
     }
+
+
 
 
     LaunchedEffect(Unit) {
@@ -258,8 +265,11 @@ fun Game(
 
                                             )
                                     )
+                                    TimerTransition(
+                                        timer = time.toString()
 
-                                    Text(
+                                    )
+                                  /*  Text(
                                         modifier = Modifier,
                                         text = time.toString(),
                                         style = TextStyle(
@@ -269,7 +279,8 @@ fun Game(
                                             color = MaterialTheme.colorScheme.primary,
 
                                             )
-                                    )
+                                    )*/
+
                                 }
                             }
 
@@ -296,8 +307,10 @@ fun Game(
                             itemsIndexed(usersAnswerList) { idx, userAnswerDataItem ->
                                 DataItemCard(
                                     modifier = Modifier
+
                                         .size(50.dp)
                                         .padding(0.dp)
+                                        .fillParentMaxWidth()
                                         .animateItem()
                                         .animateContentSize(),
                                     dataItem = userAnswerDataItem,
@@ -406,6 +419,32 @@ fun Game(
             }
 
         }
+    }
+
+}
+
+
+@Composable
+fun TimerTransition(
+    modifier: Modifier =Modifier,
+    timer:String,
+){
+    AnimatedContent(targetState = timer, transitionSpec = {
+        (slideInVertically()+ fadeIn()).togetherWith(slideOutVertically() + fadeOut())
+
+    }, label = ""
+    ) {
+        Text(
+            modifier = Modifier,
+            text = it,
+            style = TextStyle(
+                fontSize = 35.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Start,
+                color = MaterialTheme.colorScheme.primary,
+
+                )
+        )
     }
 
 }
