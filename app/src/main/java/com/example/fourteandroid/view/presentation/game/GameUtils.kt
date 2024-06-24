@@ -30,6 +30,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -83,7 +85,8 @@ fun DataItemCard(
     dataItem: DataItem,
     color: Color = MaterialTheme.colorScheme.secondary,
     selectAction:()->Unit,
-    shape: Shape = RoundedCornerShape(10)
+    shape: Shape = RoundedCornerShape(10),
+    fontSize: TextUnit = 35.sp
 ) {
     Card(
         modifier = modifier
@@ -107,7 +110,7 @@ fun DataItemCard(
                     .padding(MaterialTheme.dimens.coreDimensions.padding04),
                 text = dataItem.data,
                 style = TextStyle(
-                    fontSize = 35.sp,
+                    fontSize = fontSize,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )

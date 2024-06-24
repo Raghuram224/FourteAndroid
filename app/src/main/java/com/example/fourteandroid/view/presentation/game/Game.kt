@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -58,7 +59,7 @@ import com.example.fourteandroid.view.presentation.game.TimedModeDialog
 import com.example.fourteandroid.viewModels.GameViewModel
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun Game(
     modifier: Modifier = Modifier,
@@ -202,10 +203,10 @@ fun Game(
             } else {
                 Box(
                     modifier = Modifier
-                        .padding(
+                      /*  .padding(
                             horizontal = MaterialTheme.dimens.gameDimensions.pageHorizontalPadding16,
                             vertical = MaterialTheme.dimens.gameDimensions.pageVerticalPadding08
-                        )
+                        )*/
                         .weight(0.5f),
                     contentAlignment = Alignment.Center
                 ) {
@@ -305,18 +306,31 @@ fun Game(
                             horizontalArrangement = Arrangement.Center
                         ) {
                             itemsIndexed(usersAnswerList) { idx, userAnswerDataItem ->
-                                DataItemCard(
-                                    modifier = Modifier
+                                Modifier
+                                    .weight(1f)
+                                    .padding(8.dp)
+                                    .fillParentMaxWidth()
+                                Box(
+                                    modifier = Modifier.animateItem(
+                                        fadeInSpec = null,
+                                        fadeOutSpec = null
+                                    )
+                                        .animateContentSize()
+                                ) {
+                                    DataItemCard(
+                                        modifier = Modifier
+                                            .size(width = 35.dp , height = 40.dp)
+                                            .padding(0.dp)
+                                            .fillParentMaxWidth()
+                                            .animateItem()
+                                            .animateContentSize(),
+                                        dataItem = userAnswerDataItem,
+                                        shape = RoundedCornerShape(0),
+                                        fontSize = 20.sp,
+                                        selectAction = { gameViewModel.removeUserAnswerList(idx = idx) },
+                                    )
+                                }
 
-                                        .size(50.dp)
-                                        .padding(0.dp)
-                                        .fillParentMaxWidth()
-                                        .animateItem()
-                                        .animateContentSize(),
-                                    dataItem = userAnswerDataItem,
-                                    selectAction = { gameViewModel.removeUserAnswerList(idx = idx) },
-                                    shape = RoundedCornerShape(0)
-                                )
                             }
                         }
                     }

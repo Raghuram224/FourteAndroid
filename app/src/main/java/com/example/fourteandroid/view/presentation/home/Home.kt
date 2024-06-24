@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -91,7 +92,10 @@ fun Home(
 
             Button(
                 modifier = Modifier
-                    .padding(vertical = MaterialTheme.dimens.coreDimensions.padding16),
+                    .padding(
+                        vertical = MaterialTheme.dimens.coreDimensions.padding16,
+                        horizontal = MaterialTheme.dimens.coreDimensions.padding64,)
+                    .fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary
                 ),
@@ -122,6 +126,11 @@ fun Home(
 
             }
             Button(
+                modifier = Modifier
+                    .padding(
+                        vertical = MaterialTheme.dimens.coreDimensions.padding16,
+                        horizontal = MaterialTheme.dimens.coreDimensions.padding64,)
+                    .fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.secondary
                 ),

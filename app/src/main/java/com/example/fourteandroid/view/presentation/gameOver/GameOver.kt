@@ -1,14 +1,18 @@
 package com.example.fourteandroid.view.presentation.gameOver
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -17,18 +21,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.fourteandroid.R
+import com.example.fourteandroid.data.TimerStatus
 import com.example.fourteandroid.ui.theme.Purple
 import com.example.fourteandroid.ui.theme.dimens
 import com.example.fourteandroid.view.presentation.game.DataItemCard
+import com.example.fourteandroid.view.presentation.game.ExitAlertDialogExample
 import com.example.fourteandroid.viewModels.GameOverViewModel
 
 @Composable
@@ -37,24 +47,14 @@ fun GameOver(
     gameOverViewModel: GameOverViewModel,
     backToGameNavigationEndlessMode: () -> Unit,
     menuNavigation:()->Unit,
-
-//    backToGameNavigationTimedMode: () -> Unit,
-
-    ) {
-
-//    val answer = 11
-//    val score =2
-//    val dataItemsList = listOf(
-//        DataItem(dataType = DataTypes.Number, data = "49", isSelected = false),
-//        DataItem(dataType = DataTypes.Add, data = "+", isSelected = false),
-//        DataItem(dataType = DataTypes.Number, data = "26", isSelected = false),
-//        DataItem(dataType = DataTypes.Subtract, data = "-", isSelected = false),
-//        DataItem(dataType = DataTypes.Number, data = "6", isSelected = false)
-//    )
+){
     val answer by gameOverViewModel.correctAnswer.collectAsState()
     val score by gameOverViewModel.score.collectAsState()
+    val isExitPopupOpen = remember {
+        mutableStateOf(false)
+    }
     BackHandler {
-        backToGameNavigationEndlessMode()
+        isExitPopupOpen.value = true
     }
     Scaffold { innerPadding ->
         Column(
@@ -213,11 +213,22 @@ fun GameOver(
 
 
         }
+
+        if (isExitPopupOpen.value) {
+            ExitAlertDialogExample(
+                onDismissRequest = {
+                    isExitPopupOpen.value = false
+
+                },
+                onConfirmation = {
+                    menuNavigation()
+
+                },
+                dialogTitle = "Exit the mode",
+                dialogText = "Do you want to exit the mode",
+                icon = Icons.Default.ExitToApp
+            )
+//            }
+        }
     }
 }
-
-//@Preview(showSystemUi = true)
-//@Composable
-//private fun PreviewGameOver() {
-//    GameOver(backToGameNavigation = {})
-//}

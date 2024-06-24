@@ -58,6 +58,8 @@ data class CoreDimensions(
     val padding12: Dp = 12.dp,
     val padding16: Dp = 16.dp,
     val padding20: Dp = 20.dp,
+    val padding32:Dp = 32.dp,
+    val padding64:Dp = 64.dp,
 
     val pageHorizontalPadding16: Dp = 16.dp,
     val pageVerticalPadding16: Dp = 16.dp,
