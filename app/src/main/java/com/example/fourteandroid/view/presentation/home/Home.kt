@@ -1,8 +1,10 @@
 package com.example.fourteandroid.view.presentation.home
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -36,9 +38,9 @@ import com.example.fourteandroid.view.presentation.game.DataItemCard
 @Composable
 fun Home(
     modifier: Modifier = Modifier,
-    endlessGameNavigation:()->Unit,
-    timedNavigation:()->Unit,
-    ) {
+    endlessGameNavigation: () -> Unit,
+    timedNavigation: () -> Unit,
+) {
     val appTitle = listOf(
         DataItem(
             dataType = DataTypes.Number,
@@ -68,7 +70,7 @@ fun Home(
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-    ) {innerPadding->
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -78,85 +80,106 @@ fun Home(
         ) {
 
             LazyRow {
-                items(appTitle){dataItem->
+                items(appTitle) { dataItem ->
                     DataItemCard(
                         modifier = Modifier
                             .size(50.dp),
-                        dataItem =dataItem ,
+                        dataItem = dataItem,
                         shape = RoundedCornerShape(0),
                         selectAction = { /*TODO*/ }
                     )
                 }
             }
-
-
-            Button(
+            Row(
                 modifier = Modifier
-                    .padding(
-                        vertical = MaterialTheme.dimens.coreDimensions.padding16,
-                        horizontal = MaterialTheme.dimens.coreDimensions.padding64,)
                     .fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                ),
-                onClick = { endlessGameNavigation() },
-                shape = RoundedCornerShape(0),
-
+               verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
             ) {
-                Row(
+                Spacer(
                     modifier = Modifier
-                    ,
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Icon(
+                        .weight(0.2f)
+                )
 
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = null
-                    )
-                    Text(
-                        modifier = Modifier.padding(MaterialTheme.dimens.coreDimensions.padding04),
-                        text = stringResource(id = R.string.endless),
-                        style = TextStyle(
-                            fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    )
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(MaterialTheme.dimens.coreDimensions.padding32)
+
+                ) {
+                    Button(
+                        modifier = Modifier
+                        .padding(
+                            MaterialTheme.dimens.coreDimensions.padding08
+                            )
+                        .fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        ),
+                        onClick = { endlessGameNavigation() },
+                        shape = RoundedCornerShape(0),
+
+                        ) {
+                        Row(
+                            modifier = Modifier,
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+
+                                imageVector = Icons.Default.PlayArrow,
+                                contentDescription = null
+                            )
+                            Text(
+                                modifier = Modifier.padding(MaterialTheme.dimens.coreDimensions.padding04),
+                                text = stringResource(id = R.string.endless),
+                                style = TextStyle(
+                                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            )
+                        }
+
+                    }
+                    Button(
+                        modifier = Modifier
+                            .padding(
+                                MaterialTheme.dimens.coreDimensions.padding08
+                            )
+                            .fillMaxWidth(),
+
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary
+                        ),
+                        onClick = { timedNavigation() },
+                        shape = RoundedCornerShape(0)
+                    ) {
+                        Row(
+                            modifier = Modifier,
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+
+                                painter = painterResource(id = R.drawable.timer_ic),
+                                contentDescription = null
+                            )
+                            Text(
+                                modifier = Modifier.padding(MaterialTheme.dimens.coreDimensions.padding04),
+                                text = stringResource(id = R.string.timed),
+                                style = TextStyle(
+                                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            )
+                        }
+                    }
                 }
 
-            }
-            Button(
-                modifier = Modifier
-                    .padding(
-                        vertical = MaterialTheme.dimens.coreDimensions.padding16,
-                        horizontal = MaterialTheme.dimens.coreDimensions.padding64,)
-                    .fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary
-                ),
-                onClick = { timedNavigation() },
-                shape = RoundedCornerShape(0)
-            ) {
-                Row(
+                Spacer(
                     modifier = Modifier
-                    ,
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-
-                       painter = painterResource(id = R.drawable.timer_ic),
-                        contentDescription = null
-                    )
-                    Text(
-                        modifier = Modifier.padding(MaterialTheme.dimens.coreDimensions.padding04),
-                        text = stringResource(id = R.string.timed),
-                        style = TextStyle(
-                            fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    )
-                }
+                        .weight(0.2f)
+                )
             }
         }
     }

@@ -6,8 +6,6 @@ import com.example.fourteandroid.data.AnswerType
 import com.example.fourteandroid.data.DataItem
 import com.example.fourteandroid.data.DataTypes
 import com.example.fourteandroid.data.ResponseState
-import evaluatePostfix
-import infixToPostfix
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.random.Random
 
@@ -66,9 +64,7 @@ class GameRepository {
                  ")" to DataTypes.CloseParenthesis*/
     )
 
-    var currentTime = 0
 
-    //    var isTimerStarted = false
     private var operationsCount = 4
     private val numbersRange = 50
     private val operatorList = operators.entries.toList()
@@ -94,10 +90,7 @@ class GameRepository {
 
             }
 
-//                Log.i("actual qn", actualQn.toList().toString())
-
         }
-        //            generateAnswer()
         qnNumberList.shuffle()
         Log.i("list data", actualQn.toString())
         updateResponseState(responseState = ResponseState.QnGenerated)
@@ -105,77 +98,17 @@ class GameRepository {
 
     }
 
-   /* private fun generateAnswer(userAnswerList: List<DataItem>, answerType: AnswerType): Int {
-            if (userAnswerList.isEmpty()) return 0
-
-            var result = 0
-            var currentOperation: DataTypes? = null
-
-            for (dataItem in userAnswerList) {
-                //            Log.i("step",currentOperation.toString())
-                when (dataItem.dataType) {
-                    DataTypes.Number -> {
-                        val number = dataItem.data.toInt()
-                        Log.i("step ", number.toString())
-                        result = if (currentOperation == null) {
-                            if (answerType == AnswerType.User) {
-                                ("$result" + "$number").toInt()
-                            } else {
-                                result + number
-                            }
-                        } else {
-                            //                        Log.i("step",currentOperation.toString())
-                            when (currentOperation) {
-                                DataTypes.Add -> result + number
-                                DataTypes.Subtract -> result - number
-                                DataTypes.Multiply -> result * number
-                                DataTypes.Division -> result / number
-                                else -> result
-                            }
-                        }
-                    }
-
-                    else -> {
-                        currentOperation = dataItem.dataType
-                        Log.i("step", currentOperation.toString())
-                    }
-                }
-            }
-            Log.i("step Computer", "Computer End**")
-
-
-            //        updateOptionNumbersList(_qnNumberList)
-            Log.i("answer", result.toString())
-            Log.i("answer qn operator", qnOperatorsList.toString())
-            Log.i("answer qn numbers", qnNumberList.toString())
-            if (userAnswerList.isEmpty()) {
-                userAnswer.value = null
-            } else {
-                //            _userAnswer.value = result
-            }
-
-
-            return  result
-        }
-*/
     private fun generateAnswer(userAnswerList: List<DataItem>, answerType: AnswerType): Int? {
-        val operatorsList = listOf("+", "-", "/", "*", "(", ")")
+
         if (userAnswerList.isEmpty()) return null
         val expressionList = userAnswerList.map { it.data }
         Log.i("expression list", expressionList.toString())
         val postfix = infixToPostfix(expressionList)
-        println("Postfix: $postfix") // Debugging line to show the postfix expression
-        /*return if (operatorsList.contains(postfix?.last()) && postfix?.size==1) {
-            null
-        } else {
-            val result = postfix?.let { evaluatePostfix(it) }
-            Log.i("expression result", result.toString())
-            result
-        }*/
+        println("Postfix: $postfix")
 
-       val result = postfix?.let { evaluatePostfix(it) }
-       Log.i("expression result", result.toString())
-       return result
+        val result = postfix?.let { evaluatePostfix(it) }
+        Log.i("expression result", result.toString())
+        return result
 
     }
 
@@ -213,13 +146,7 @@ class GameRepository {
                     updateOptionNumbersValues(idx = index, isSelected = false)
                 }
             }
-        } /*else {
-                _operatorsList.forEachIndexed { index, operatorItem ->
-                    if (operatorItem.data == dataItem.data) {
-                        updateOperatorList(idx = index, isSelected = false)
-                    }
-                }
-            }*/
+        }
         if (userAnswerList.isEmpty()) {
             userAnswer.value = null
         }
@@ -227,18 +154,13 @@ class GameRepository {
 
     }
 
-    fun updateOperatorList(idx: Int) {
-//        _operatorsList[idx] = _operatorsList[idx].copy(isSelected = isSelected)
-//        if (_operatorsList[idx].isSelected) {
+    fun updateOperatorList(idx: Int) = updateUserAnswerList(operatorsList[idx])
 
-        updateUserAnswerList(operatorsList[idx])
-//        }
-    }
 
     fun updateCorrectAnswer(list: List<DataItem>, answerType: AnswerType) {
         correctAnswer.value =
             generateAnswer(userAnswerList = list, answerType = answerType)
-        Log.i("correct answer !!",correctAnswer.value.toString())
+        Log.i("correct answer !!", correctAnswer.value.toString())
     }
 
     fun getUserAnswer(userAnswerList: List<DataItem>, answerType: AnswerType) {
