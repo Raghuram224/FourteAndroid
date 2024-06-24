@@ -33,3 +33,9 @@ enum class TimerStatus{
     Paused,
     Finished,
 }
+
+enum class BoxSize{
+    LessThanQuarter,
+    LessThanHalf,
+    GreaterThanHalf,
+}

@@ -1,11 +1,6 @@
 import android.util.Log
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,6 +16,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
@@ -35,11 +31,15 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.fourteandroid.R
 import com.example.fourteandroid.data.AnswerType
+import com.example.fourteandroid.data.BoxSize
 import com.example.fourteandroid.data.ResponseState
 import com.example.fourteandroid.data.TimerStatus
 import com.example.fourteandroid.ui.theme.Purple
@@ -56,6 +57,7 @@ import com.example.fourteandroid.view.presentation.game.DataItemCard
 import com.example.fourteandroid.view.presentation.game.ExitAlertDialogExample
 import com.example.fourteandroid.view.presentation.game.Loading
 import com.example.fourteandroid.view.presentation.game.TimedModeDialog
+import com.example.fourteandroid.view.presentation.game.TimerTransition
 import com.example.fourteandroid.viewModels.GameViewModel
 
 
@@ -86,6 +88,33 @@ fun Game(
         mutableStateOf(false)
     }
 
+    val currentUserAnswerRowSize = remember {
+        mutableIntStateOf(0)
+    }
+    val optionNumbers = gameViewModel.optionNumbers
+    val usersAnswerList = gameViewModel.userAnswerList
+
+
+    val listState = rememberLazyListState()
+
+    val screenWidth = LocalConfiguration.current.screenWidthDp
+    val boxState = remember {
+        mutableStateOf(BoxSize.LessThanQuarter)
+    }
+    val quarterScreenWidthDp = screenWidth / 4
+    val halfScreenWidthDp = screenWidth/2
+//    val userAnswerBoxSize = 35
+    val userAnswerBoxSize = when(boxState.value){
+        BoxSize.LessThanQuarter -> 70.dp
+        BoxSize.LessThanHalf -> 50.dp
+        BoxSize.GreaterThanHalf -> 35.dp
+    }
+
+    val boxAnimateSize = animateDpAsState(targetValue = userAnswerBoxSize, label = "")
+
+    LaunchedEffect(boxState) {
+        Log.i("box state",boxState.value.toString())
+    }
 
 
 
@@ -95,11 +124,11 @@ fun Game(
     }
     LaunchedEffect(timerStatus) {
         Log.i("timer", timerStatus.toString())
-        if (gameViewModel.isTimedMode && timerStatus!=TimerStatus.Running && !gameViewModel.isTimerStarted) {
+        if (gameViewModel.isTimedMode && timerStatus != TimerStatus.Running && !gameViewModel.isTimerStarted) {
             Log.i("timer inside", timerStatus.toString())
             gameViewModel.timeController.start()
             gameViewModel.updateTimerStatus(status = TimerStatus.Running)
-            gameViewModel.isTimerStarted =true
+            gameViewModel.isTimerStarted = true
 
         }
         if (timerStatus == TimerStatus.Finished) {
@@ -128,13 +157,31 @@ fun Game(
 
 
     LaunchedEffect(userAnswerList.size) {
+        Log.i("box Row size", currentUserAnswerRowSize.intValue.toString())
+        Log.i("box quarter", quarterScreenWidthDp.toString())
+        Log.i("box half", halfScreenWidthDp.toString())
+        Log.i("box state", boxState.value.toString())
+  /*      Log.i(" box Row size screen width", screenWidth.toString())
+        Log.i("box Row size user answer list size", userAnswerList.size.toString())*/
+
+        currentUserAnswerRowSize.intValue = ((userAnswerList.size * userAnswerBoxSize.value)).toInt()+35
+
+        if (currentUserAnswerRowSize.intValue<quarterScreenWidthDp){
+            boxState.value = BoxSize.LessThanQuarter
+        }else if (currentUserAnswerRowSize.intValue < halfScreenWidthDp){
+            boxState.value = BoxSize.LessThanHalf
+        }else if (currentUserAnswerRowSize.intValue>halfScreenWidthDp){
+            boxState.value = BoxSize.GreaterThanHalf
+        }
+
+
         if (userAnswerList.isNotEmpty()) {
             if (userAnswer == correctAnswer) {
                 Log.i("test", userAnswer.toString() + "$correctAnswer")
                 Log.i("correct answer", "right answer")
-
             }
             gameViewModel.getAnswer(answerList = userAnswerList, answerType = AnswerType.User)
+
         } else {
             Log.i("get answer else", "nothing")
         }
@@ -160,9 +207,6 @@ fun Game(
         }
 
     }
-
-    val optionNumbers = gameViewModel.optionNumbers
-    val usersAnswerList = gameViewModel.userAnswerList
 
 
     Scaffold(
@@ -203,10 +247,10 @@ fun Game(
             } else {
                 Box(
                     modifier = Modifier
-                      /*  .padding(
-                            horizontal = MaterialTheme.dimens.gameDimensions.pageHorizontalPadding16,
-                            vertical = MaterialTheme.dimens.gameDimensions.pageVerticalPadding08
-                        )*/
+                        /*  .padding(
+                              horizontal = MaterialTheme.dimens.gameDimensions.pageHorizontalPadding16,
+                              vertical = MaterialTheme.dimens.gameDimensions.pageVerticalPadding08
+                          )*/
                         .weight(0.5f),
                     contentAlignment = Alignment.Center
                 ) {
@@ -270,17 +314,17 @@ fun Game(
                                         timer = time.toString()
 
                                     )
-                                  /*  Text(
-                                        modifier = Modifier,
-                                        text = time.toString(),
-                                        style = TextStyle(
-                                            fontSize = 35.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            textAlign = TextAlign.Start,
-                                            color = MaterialTheme.colorScheme.primary,
+                                    /*  Text(
+                                          modifier = Modifier,
+                                          text = time.toString(),
+                                          style = TextStyle(
+                                              fontSize = 35.sp,
+                                              fontWeight = FontWeight.SemiBold,
+                                              textAlign = TextAlign.Start,
+                                              color = MaterialTheme.colorScheme.primary,
 
-                                            )
-                                    )*/
+                                              )
+                                      )*/
 
                                 }
                             }
@@ -302,37 +346,34 @@ fun Game(
                         LazyRow(
                             modifier = Modifier
                                 .fillMaxWidth(),
+                            state = listState,
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
                             itemsIndexed(usersAnswerList) { idx, userAnswerDataItem ->
-                                Modifier
-                                    .weight(1f)
-                                    .padding(8.dp)
-                                    .fillParentMaxWidth()
-                                Box(
-                                    modifier = Modifier.animateItem(
-                                        fadeInSpec = null,
-                                        fadeOutSpec = null
-                                    )
-                                        .animateContentSize()
-                                ) {
-                                    DataItemCard(
-                                        modifier = Modifier
-                                            .size(width = 35.dp , height = 40.dp)
-                                            .padding(0.dp)
-                                            .fillParentMaxWidth()
-                                            .animateItem()
-                                            .animateContentSize(),
-                                        dataItem = userAnswerDataItem,
-                                        shape = RoundedCornerShape(0),
-                                        fontSize = 20.sp,
-                                        selectAction = { gameViewModel.removeUserAnswerList(idx = idx) },
-                                    )
-                                }
+                                DataItemCard(
+                                    modifier = Modifier
+//                                        .size(userAnswerBoxSize.dp)
+                                        .size(boxAnimateSize.value)
+                                        .padding(0.dp)
+                                        .animateItem()
+                                        .animateContentSize(),
+                                    dataItem = userAnswerDataItem,
+                                    shape = RoundedCornerShape(0),
+                                    fontSize = 20.sp,
+                                    selectAction = { gameViewModel.removeUserAnswerList(idx = idx) },
+                                )
+
 
                             }
                         }
+
+                        /*UserAnswerLazyRow(
+                            usersAnswerList = userAnswerList,
+                            selectAction = {idx->
+                                gameViewModel.removeUserAnswerList(idx = idx)
+                            }
+                        )*/
                     }
 
 
@@ -362,10 +403,20 @@ fun Game(
                                 dataItem = numberDataItem,
                                 selectAction = {
                                     if (!numberDataItem.isSelected) {
-                                        gameViewModel.updateOptionNumbersValues(
-                                            idx = idx,
-                                            isSelected = true
-                                        )
+                                        if (currentUserAnswerRowSize.value.dp < screenWidth.dp) {
+                                            gameViewModel.updateOptionNumbersValues(
+                                                idx = idx,
+                                                isSelected = true
+                                            )
+                                        } else {
+                                            Log.i(
+                                                "Row size",
+                                                currentUserAnswerRowSize.value.toString()
+                                            )
+                                            Log.i("Row size total width", screenWidth.toString())
+                                            Log.i("Row size", "Row exceeded")
+                                        }
+
                                     }/*else{
                                         gameViewModel.updateOptionNumbersValues(
                                             idx = idx,
@@ -399,8 +450,13 @@ fun Game(
                                 dataItem = operatorDataItem,
                                 shape = RoundedCornerShape(0),
                                 selectAction = {
+                                    if (currentUserAnswerRowSize.value.dp < screenWidth.dp) {
+                                        gameViewModel.updateOperatorList(idx = idx)
 
-                                    gameViewModel.updateOperatorList(idx = idx)
+                                    } else {
+                                        Log.i("Row size", currentUserAnswerRowSize.value.toString())
+                                        Log.i("Row size", "row exceeded")
+                                    }
 
 
                                 }
@@ -433,33 +489,10 @@ fun Game(
             }
 
         }
+
     }
 
 }
 
 
-@Composable
-fun TimerTransition(
-    modifier: Modifier =Modifier,
-    timer:String,
-){
-    AnimatedContent(targetState = timer, transitionSpec = {
-        (slideInVertically()+ fadeIn()).togetherWith(slideOutVertically() + fadeOut())
-
-    }, label = ""
-    ) {
-        Text(
-            modifier = Modifier,
-            text = it,
-            style = TextStyle(
-                fontSize = 35.sp,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Start,
-                color = MaterialTheme.colorScheme.primary,
-
-                )
-        )
-    }
-
-}
 
