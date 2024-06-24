@@ -5,3 +5,6 @@ plugins {
     //hilt
     id("com.google.dagger.hilt.android") version "2.48" apply false
 }
+repositories {
+    google()
+}

@@ -47,6 +47,7 @@ fun Intro(
                     else R.string.solve_them_all
                 ),
                 style = TextStyle(
+                    fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
                     fontSize = 40.sp
                 )
             )

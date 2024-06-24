@@ -1,4 +1,5 @@
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -151,15 +152,6 @@ fun Game(
 
     LaunchedEffect(userAnswerList.size) {
 
-//        currentUserAnswerRowSize.intValue = ((userAnswerList.size * userAnswerBoxSize.value)).toInt()+35
-        /*if (currentUserAnswerRowSize.intValue<quarterScreenWidthDp){
-            boxState.value = BoxSize.LessThanQuarter
-        }else if (currentUserAnswerRowSize.intValue < halfScreenWidthDp){
-            boxState.value = BoxSize.LessThanHalf
-        }else if (currentUserAnswerRowSize.intValue>halfScreenWidthDp){
-            boxState.value = BoxSize.GreaterThanHalf
-
-        }*/
         val currentSize = (userAnswerList.size * userAnswerBoxSize.value).toInt() + 35
         currentUserAnswerRowSize.intValue = currentSize
 
@@ -192,6 +184,9 @@ fun Game(
             }
         }
 
+    }
+    BackHandler {
+        isExitPopupOpen.value =true
     }
 
 
@@ -246,9 +241,11 @@ fun Game(
                         ) {
                             Text(
                                 modifier = Modifier
-                                    .weight(0.5f),
+                                    .weight(0.5f)
+                                    .padding(MaterialTheme.dimens.gameDimensions.padding08),
                                 text = if (correctAnswer != null) correctAnswer.toString() else "?",
                                 style = TextStyle(
+                                    fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
                                     fontSize = 30.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     textAlign = TextAlign.Start,
@@ -258,14 +255,15 @@ fun Game(
                             )
                             Column(
                                 modifier = Modifier
-                                    .weight(0.5f),
+                                    .weight(0.1f),
                                 verticalArrangement = Arrangement.Top,
-                                horizontalAlignment = Alignment.End
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 if (gameViewModel.isTimedMode) {
                                     Text(
                                         text = stringResource(id = R.string.time),
                                         style = TextStyle(
+                                            fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
                                             fontSize = 25.sp,
                                             fontWeight = FontWeight.Normal,
                                             textAlign = TextAlign.Start,
@@ -284,9 +282,11 @@ fun Game(
                         }
                         Text(
                             modifier = Modifier
+                                .padding(MaterialTheme.dimens.gameDimensions.padding16)
                                 .fillMaxWidth(),
                             text = if (userAnswer != null && usersAnswerList.isNotEmpty()) userAnswer.toString() else "?",
                             style = TextStyle(
+                                fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
                                 fontSize = 40.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 textAlign = TextAlign.Center,

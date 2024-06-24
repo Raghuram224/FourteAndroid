@@ -70,6 +70,7 @@ fun GameOver(
                         .padding(MaterialTheme.dimens.gameOverDimensions.padding08),
                     text = stringResource(id = R.string.congrats_you_got_it),
                     style = TextStyle(
+                        fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
                         fontWeight = FontWeight.SemiBold,
                         color = Purple,
@@ -82,6 +83,7 @@ fun GameOver(
                         .padding(MaterialTheme.dimens.gameOverDimensions.padding16),
                     text = stringResource(id = R.string.answer),
                     style = TextStyle(
+                        fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,
@@ -95,6 +97,7 @@ fun GameOver(
                         .padding(MaterialTheme.dimens.gameOverDimensions.padding16),
                     text = answer.toString(),
                     style = TextStyle(
+                        fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
                         fontSize = 45.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.secondary,
@@ -127,6 +130,7 @@ fun GameOver(
                         .padding(MaterialTheme.dimens.gameOverDimensions.padding08),
                     text = stringResource(id = R.string.score_board),
                     style = TextStyle(
+                        fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
                         fontWeight = FontWeight.SemiBold,
                         color = Purple,
@@ -140,6 +144,7 @@ fun GameOver(
                     .padding(MaterialTheme.dimens.gameOverDimensions.padding16),
                 text = score.toString(),
                 style = TextStyle(
+                    fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
                     fontSize = 45.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.secondary,
@@ -151,6 +156,7 @@ fun GameOver(
                     .fillMaxWidth(),
                 text = stringResource(id = R.string.score),
                 style = TextStyle(
+                    fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
                     fontSize = 35.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
@@ -179,6 +185,7 @@ fun GameOver(
                         .padding(MaterialTheme.dimens.gameOverDimensions.padding08),
                     text = stringResource(id = if (gameOverViewModel.isTimedMode) R.string.play_again else R.string.next),
                     style = TextStyle(
+                        fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
                         fontSize = MaterialTheme.typography.titleMedium.fontSize,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -205,6 +212,7 @@ fun GameOver(
                         .padding(MaterialTheme.dimens.gameOverDimensions.padding08),
                     text = stringResource(id = R.string.back_to_menu),
                     style = TextStyle(
+                        fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
                         fontSize = MaterialTheme.typography.titleMedium.fontSize,
                         fontWeight = FontWeight.SemiBold
                     )

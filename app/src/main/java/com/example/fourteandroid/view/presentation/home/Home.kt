@@ -1,5 +1,8 @@
 package com.example.fourteandroid.view.presentation.home
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +24,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -41,6 +47,25 @@ fun Home(
     endlessGameNavigation: () -> Unit,
     timedNavigation: () -> Unit,
 ) {
+
+    val isAnimationStarted = remember {
+        mutableStateOf(false)
+    }
+
+    val logoPadding = if (isAnimationStarted.value) 300.dp else 0.dp
+    val logoPaddingValues = animateDpAsState(
+        targetValue = logoPadding,
+        animationSpec = tween(1000)
+        )
+    val modePadding = if (isAnimationStarted.value) 300.dp else 0.dp
+    val modePaddingValues = animateDpAsState(
+        targetValue = modePadding,
+        animationSpec = tween(1000)
+        )
+
+    LaunchedEffect(Unit) {
+        isAnimationStarted.value =true
+    }
     val appTitle = listOf(
         DataItem(
             dataType = DataTypes.Number,
@@ -75,11 +100,15 @@ fun Home(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
+//            verticalArrangement = Arrangement.Center,/**/
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            LazyRow {
+            LazyRow(
+                modifier = Modifier
+                    .padding(top = logoPaddingValues.value)
+                    .animateContentSize()
+            ) {
                 items(appTitle) { dataItem ->
                     DataItemCard(
                         modifier = Modifier
@@ -92,8 +121,9 @@ fun Home(
             }
             Row(
                 modifier = Modifier
+                    .padding(bottom = modePaddingValues.value)
                     .fillMaxWidth(),
-               verticalAlignment = Alignment.CenterVertically,
+//               verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
                 Spacer(
@@ -109,10 +139,10 @@ fun Home(
                 ) {
                     Button(
                         modifier = Modifier
-                        .padding(
-                            MaterialTheme.dimens.coreDimensions.padding08
+                            .padding(
+                                MaterialTheme.dimens.coreDimensions.padding08
                             )
-                        .fillMaxWidth(),
+                            .fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary
                         ),
@@ -134,6 +164,7 @@ fun Home(
                                 modifier = Modifier.padding(MaterialTheme.dimens.coreDimensions.padding04),
                                 text = stringResource(id = R.string.endless),
                                 style = TextStyle(
+                                    fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
                                     fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                                     fontWeight = FontWeight.SemiBold
                                 )
@@ -168,6 +199,7 @@ fun Home(
                                 modifier = Modifier.padding(MaterialTheme.dimens.coreDimensions.padding04),
                                 text = stringResource(id = R.string.timed),
                                 style = TextStyle(
+                                    fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
                                     fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                                     fontWeight = FontWeight.SemiBold
                                 )

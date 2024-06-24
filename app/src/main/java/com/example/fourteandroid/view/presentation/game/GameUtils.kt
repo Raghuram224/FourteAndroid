@@ -41,7 +41,7 @@ import androidx.compose.ui.window.Dialog
 import com.example.fourteandroid.data.DataItem
 import com.example.fourteandroid.data.DataTypes
 import com.example.fourteandroid.ui.theme.dimens
-
+import com.example.fourteandroid.ui.theme.monoFamily
 
 
 @Composable
@@ -75,6 +75,7 @@ fun DataItemCard(
                     .padding(MaterialTheme.dimens.coreDimensions.padding04),
                 text = dataItem.data,
                 style = TextStyle(
+                    fontFamily = monoFamily,
                     fontSize = fontSize,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
@@ -166,10 +167,27 @@ fun ExitAlertDialogExample(
             )
         },
         title = {
-            Text(text = dialogTitle)
+            Text(
+                text = dialogTitle,
+                style = TextStyle(
+                    fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 30.sp
+
+                )
+            )
         },
         text = {
-            Text(text = dialogText)
+            Text(
+                modifier =
+                Modifier
+                    .fillMaxWidth(),
+                text = dialogText,
+                style = TextStyle(
+                    fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
+                    textAlign = TextAlign.Center
+                )
+            )
         },
         onDismissRequest = {
             onDismissRequest()
@@ -180,7 +198,12 @@ fun ExitAlertDialogExample(
                     onConfirmation()
                 }
             ) {
-                Text("Confirm")
+                Text(
+                    "Confirm",
+                    style = TextStyle(
+                        fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
+                    )
+                )
             }
         },
         dismissButton = {
@@ -189,7 +212,12 @@ fun ExitAlertDialogExample(
                     onDismissRequest()
                 }
             ) {
-                Text("Dismiss")
+                Text(
+                    "Dismiss",
+                    style = TextStyle(
+                        fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
+                    )
+                )
             }
         }
     )
@@ -210,6 +238,7 @@ fun TimerTransition(
             modifier = modifier,
             text = it,
             style = TextStyle(
+                fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
                 fontSize = 35.sp,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Start,
