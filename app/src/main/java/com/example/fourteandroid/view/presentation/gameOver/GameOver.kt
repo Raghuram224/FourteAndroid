@@ -4,6 +4,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -77,6 +79,7 @@ fun GameOver(
                         textAlign = TextAlign.Center
                     )
                 )
+            }
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -104,6 +107,7 @@ fun GameOver(
                         textAlign = TextAlign.Center
                     )
                 )
+            if (!gameOverViewModel.isTimedMode) {
 
                 LazyRow(
                     modifier = Modifier
@@ -164,59 +168,78 @@ fun GameOver(
                 )
             )
 
-            Button(
+            Row(
                 modifier = Modifier
-                    .padding(MaterialTheme.dimens.gameOverDimensions.padding16),
-                onClick = {
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Spacer(modifier = Modifier.weight(0.2f))
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                ) {
+                    Button(
+                        modifier = Modifier
+                            .padding(MaterialTheme.dimens.gameOverDimensions.padding16),
+                        onClick = {
 //                    if (gameOverViewModel.isTimedMode){
 //                        backToGameNavigationTimedMode()
 //                    }else{
-                        backToGameNavigationEndlessMode()
+                            backToGameNavigationEndlessMode()
 //                    }
-                    gameOverViewModel.reset()
-                },
-                shape = RoundedCornerShape(5),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary
-                )
-            ) {
-                Text(
-                    modifier = Modifier
-                        .padding(MaterialTheme.dimens.gameOverDimensions.padding08),
-                    text = stringResource(id = if (gameOverViewModel.isTimedMode) R.string.play_again else R.string.next),
-                    style = TextStyle(
-                        fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
-                        fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                )
-            }
-            Button(
-                modifier = Modifier
-                    .padding(MaterialTheme.dimens.gameOverDimensions.padding16),
-                onClick = {
+                            gameOverViewModel.reset()
+                        },
+                        shape = RoundedCornerShape(5),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary
+                        )
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .padding(MaterialTheme.dimens.gameOverDimensions.padding08)
+                                .fillMaxWidth(),
+                            text = stringResource(id = if (gameOverViewModel.isTimedMode) R.string.play_again else R.string.next),
+                            style = TextStyle(
+                                textAlign = TextAlign.Center,
+                                fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
+                                fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                                fontWeight = FontWeight.Bold,
+
+                            )
+                        )
+                    }
+                    Button(
+                        modifier = Modifier
+                            .padding(MaterialTheme.dimens.gameOverDimensions.padding16),
+                        onClick = {
 //                    if (gameOverViewModel.isTimedMode){
 //                        backToGameNavigationTimedMode()
 //                    }else{
 
 //                    }
-                    menuNavigation()
-                },
-                shape = RoundedCornerShape(5),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
-            ) {
-                Text(
-                    modifier = Modifier
-                        .padding(MaterialTheme.dimens.gameOverDimensions.padding08),
-                    text = stringResource(id = R.string.back_to_menu),
-                    style = TextStyle(
-                        fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
-                        fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                )
+                            menuNavigation()
+                        },
+                        shape = RoundedCornerShape(5),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .padding(MaterialTheme.dimens.gameOverDimensions.padding08)
+                                .fillMaxWidth(),
+                            text = stringResource(id = R.string.back_to_menu),
+                            style = TextStyle(
+                                textAlign = TextAlign.Center,
+                                fontFamily = MaterialTheme.typography.bodyLarge.fontFamily,
+                                fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.weight(0.2f))
             }
 
 
